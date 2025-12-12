@@ -40,21 +40,6 @@ class PlayerService {
     }
   }
 
-  Future<void> deletePlayer(int id) async {
-    try {
-      final response = await http.delete(
-        Uri.parse('${ApiConfig.baseUrl}/players/$id'),
-        headers: ApiConfig.headers,
-      );
-
-      if (response.statusCode != 200 && response.statusCode != 204) {
-        throw Exception('Failed to delete player: ${response.statusCode}');
-      }
-    } catch (e) {
-      throw Exception('Error deleting player: $e');
-    }
-  }
-
   Future<Player> updatePlayer(int id, String name, bool confirmed) async {
     try {
       final response = await http.put(
@@ -83,7 +68,9 @@ class PlayerService {
       if (response.statusCode == 200) {
         return Player.fromJson(json.decode(response.body));
       } else {
-        throw Exception('Failed to toggle player confirmation: ${response.statusCode}');
+        throw Exception(
+          'Failed to toggle player confirmation: ${response.statusCode}',
+        );
       }
     } catch (e) {
       throw Exception('Error toggling player confirmation: $e');
@@ -101,7 +88,9 @@ class PlayerService {
         final List<dynamic> data = json.decode(response.body);
         return data.map((json) => Player.fromJson(json)).toList();
       } else {
-        throw Exception('Failed to load confirmed players: ${response.statusCode}');
+        throw Exception(
+          'Failed to load confirmed players: ${response.statusCode}',
+        );
       }
     } catch (e) {
       throw Exception('Error fetching confirmed players: $e');

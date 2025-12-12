@@ -61,7 +61,9 @@ class _PlayersRosterPageState extends State<PlayersRosterPage> {
     });
 
     try {
-      final updatedPlayer = await _playerService.togglePlayerConfirmed(player.id);
+      final updatedPlayer = await _playerService.togglePlayerConfirmed(
+        player.id,
+      );
       setState(() {
         final index = _players.indexWhere((p) => p.id == player.id);
         if (index != -1) {
@@ -80,61 +82,6 @@ class _PlayersRosterPageState extends State<PlayersRosterPage> {
             backgroundColor: AppColors.error,
           ),
         );
-      }
-    }
-  }
-
-  Future<void> _deletePlayer(Player player) async {
-    final confirmed = await showDialog<bool>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Delete Player'),
-        content: Text('Are you sure you want to delete ${player.name}?'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, false),
-            child: const Text('Cancel'),
-          ),
-          TextButton(
-            onPressed: () => Navigator.pop(context, true),
-            style: TextButton.styleFrom(foregroundColor: AppColors.error),
-            child: const Text('Delete'),
-          ),
-        ],
-      ),
-    );
-
-    if (confirmed == true) {
-      setState(() {
-        _isProcessing = true;
-      });
-
-      try {
-        await _playerService.deletePlayer(player.id);
-        setState(() {
-          _players.removeWhere((p) => p.id == player.id);
-          _isProcessing = false;
-        });
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Player deleted successfully'),
-              backgroundColor: AppColors.sageGreen,
-            ),
-          );
-        }
-      } catch (e) {
-        if (mounted) {
-          setState(() {
-            _isProcessing = false;
-          });
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('Error: ${e.toString()}'),
-              backgroundColor: AppColors.error,
-            ),
-          );
-        }
       }
     }
   }
@@ -217,171 +164,165 @@ class _PlayersRosterPageState extends State<PlayersRosterPage> {
     final confirmedCount = _players.where((p) => p.confirmed).length;
     final unconfirmedCount = _players.length - confirmedCount;
 
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Players Roster'),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.refresh),
-            onPressed: _isLoading ? null : _loadPlayers,
-          ),
-        ],
-      ),
-      body: Column(
-        children: [
-          // Stats section
-          Container(
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: AppColors.surface,
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.1),
-                  blurRadius: 4,
-                  offset: const Offset(0, 2),
-                ),
-              ],
+    return SafeArea(
+      child: Scaffold(
+        appBar: AppBar(
+          title: const Text('Players Roster'),
+          actions: [
+            IconButton(
+              icon: const Icon(Icons.refresh),
+              onPressed: _isLoading ? null : _loadPlayers,
             ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: [
-                _buildStatCard(
-                  'Total',
-                  _players.length.toString(),
-                  AppColors.petrolBlue,
-                ),
-                _buildStatCard(
-                  'Confirmed',
-                  confirmedCount.toString(),
-                  AppColors.sageGreen,
-                ),
-                _buildStatCard(
-                  'Unconfirmed',
-                  unconfirmedCount.toString(),
-                  AppColors.ocher,
-                ),
-              ],
+          ],
+        ),
+        body: Column(
+          children: [
+            // Stats section
+            Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: AppColors.surface,
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.1),
+                    blurRadius: 4,
+                    offset: const Offset(0, 2),
+                  ),
+                ],
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: [
+                  _buildStatCard(
+                    'Total',
+                    _players.length.toString(),
+                    AppColors.petrolBlue,
+                  ),
+                  _buildStatCard(
+                    'Confirmed',
+                    confirmedCount.toString(),
+                    AppColors.sageGreen,
+                  ),
+                  _buildStatCard(
+                    'Unconfirmed',
+                    unconfirmedCount.toString(),
+                    AppColors.ocher,
+                  ),
+                ],
+              ),
             ),
-          ),
-          // Players list
-          Expanded(
-            child: _isLoading
-                ? const Center(child: CircularProgressIndicator())
-                : _players.isEmpty
-                    ? Center(
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            const Icon(
-                              Icons.people_outline,
-                              size: 64,
-                              color: AppColors.textSecondary,
-                            ),
-                            const SizedBox(height: 16),
-                            Text(
-                              'No players in roster',
-                              style: Theme.of(context).textTheme.titleLarge,
-                            ),
-                            const SizedBox(height: 8),
-                            Text(
-                              'Add players to get started',
-                              style: Theme.of(context).textTheme.bodySmall,
-                            ),
-                          ],
-                        ),
-                      )
-                    : ListView.separated(
-                        padding: const EdgeInsets.all(16),
-                        itemCount: _players.length,
-                        separatorBuilder: (context, index) =>
-                            const SizedBox(height: 8),
-                        itemBuilder: (context, index) {
-                          final player = _players[index];
-                          return Card(
-                            elevation: 2,
-                            child: ListTile(
-                              leading: CircleAvatar(
-                                backgroundColor: player.confirmed
-                                    ? AppColors.sageGreen
-                                    : AppColors.ocher,
-                                child: Text(
-                                  player.name[0].toUpperCase(),
-                                  style: const TextStyle(
-                                    color: AppColors.white,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                              ),
-                              title: Text(
-                                player.name,
+            // Players list
+            Expanded(
+              child: _isLoading
+                  ? const Center(child: CircularProgressIndicator())
+                  : _players.isEmpty
+                  ? Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const Icon(
+                            Icons.people_outline,
+                            size: 64,
+                            color: AppColors.textSecondary,
+                          ),
+                          const SizedBox(height: 16),
+                          Text(
+                            'No players in roster',
+                            style: Theme.of(context).textTheme.titleLarge,
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            'Add players to get started',
+                            style: Theme.of(context).textTheme.bodySmall,
+                          ),
+                        ],
+                      ),
+                    )
+                  : ListView.separated(
+                      padding: const EdgeInsets.all(16),
+                      itemCount: _players.length,
+                      separatorBuilder: (context, index) =>
+                          const SizedBox(height: 8),
+                      itemBuilder: (context, index) {
+                        final player = _players[index];
+                        return Card(
+                          elevation: 2,
+                          child: ListTile(
+                            leading: CircleAvatar(
+                              backgroundColor: player.confirmed
+                                  ? AppColors.sageGreen
+                                  : AppColors.ocher,
+                              child: Text(
+                                player.name[0].toUpperCase(),
                                 style: const TextStyle(
-                                  fontWeight: FontWeight.w600,
+                                  color: AppColors.white,
+                                  fontWeight: FontWeight.bold,
                                 ),
                               ),
-                              subtitle: Row(
-                                children: [
-                                  Icon(
-                                    player.confirmed
-                                        ? Icons.check_circle
-                                        : Icons.cancel,
-                                    size: 16,
+                            ),
+                            title: Text(
+                              player.name,
+                              style: const TextStyle(
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                            subtitle: Row(
+                              children: [
+                                Icon(
+                                  player.confirmed
+                                      ? Icons.check_circle
+                                      : Icons.cancel,
+                                  size: 16,
+                                  color: player.confirmed
+                                      ? AppColors.sageGreen
+                                      : AppColors.ocher,
+                                ),
+                                const SizedBox(width: 4),
+                                Text(
+                                  player.confirmed
+                                      ? 'Confirmed'
+                                      : 'Not confirmed',
+                                  style: TextStyle(
                                     color: player.confirmed
                                         ? AppColors.sageGreen
                                         : AppColors.ocher,
                                   ),
-                                  const SizedBox(width: 4),
-                                  Text(
-                                    player.confirmed
-                                        ? 'Confirmed'
-                                        : 'Not confirmed',
-                                    style: TextStyle(
-                                      color: player.confirmed
-                                          ? AppColors.sageGreen
-                                          : AppColors.ocher,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              trailing: Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  IconButton(
-                                    icon: Icon(
-                                      player.confirmed
-                                          ? Icons.toggle_on
-                                          : Icons.toggle_off,
-                                      size: 32,
-                                    ),
-                                    color: player.confirmed
-                                        ? AppColors.sageGreen
-                                        : AppColors.textSecondary,
-                                    onPressed: _isProcessing
-                                        ? null
-                                        : () => _toggleConfirmed(player),
-                                    tooltip: 'Toggle confirmation',
-                                  ),
-                                  IconButton(
-                                    icon: const Icon(Icons.delete_outline),
-                                    color: AppColors.error,
-                                    onPressed: _isProcessing
-                                        ? null
-                                        : () => _deletePlayer(player),
-                                    tooltip: 'Delete player',
-                                  ),
-                                ],
-                              ),
+                                ),
+                              ],
                             ),
-                          );
-                        },
-                      ),
-          ),
-        ],
-      ),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: _isProcessing ? null : _showAddPlayerDialog,
-        icon: const Icon(Icons.person_add),
-        label: const Text('Add Player'),
-        backgroundColor: AppColors.sageGreen,
+                            trailing: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                IconButton(
+                                  icon: Icon(
+                                    player.confirmed
+                                        ? Icons.toggle_on
+                                        : Icons.toggle_off,
+                                    size: 32,
+                                  ),
+                                  color: player.confirmed
+                                      ? AppColors.sageGreen
+                                      : AppColors.textSecondary,
+                                  onPressed: _isProcessing
+                                      ? null
+                                      : () => _toggleConfirmed(player),
+                                  tooltip: 'Toggle confirmation',
+                                ),
+                              ],
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+            ),
+          ],
+        ),
+        floatingActionButton: FloatingActionButton.extended(
+          onPressed: _isProcessing ? null : _showAddPlayerDialog,
+          icon: const Icon(Icons.person_add),
+          label: const Text('Add Player'),
+          backgroundColor: AppColors.sageGreen,
+        ),
       ),
     );
   }
@@ -400,10 +341,7 @@ class _PlayersRosterPageState extends State<PlayersRosterPage> {
         const SizedBox(height: 4),
         Text(
           label,
-          style: const TextStyle(
-            fontSize: 14,
-            color: AppColors.textSecondary,
-          ),
+          style: const TextStyle(fontSize: 14, color: AppColors.textSecondary),
         ),
       ],
     );
