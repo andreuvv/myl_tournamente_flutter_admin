@@ -3,6 +3,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import '../../config/app_theme.dart';
 import 'settings_page.dart';
 import 'player_management_page.dart';
+import 'players_roster_page.dart';
 import 'fixture_config_page.dart';
 
 class HomePage extends StatelessWidget {
@@ -90,10 +91,11 @@ class HomePageContent extends StatelessWidget {
         _buildMenuCard(
           context,
           icon: Icons.people,
-          title: 'Players',
-          description: 'Manage tournament players',
+          title: 'Players Roster',
+          description: 'Manage all players',
           color: AppColors.sageGreen,
-          index: 1,
+          isCustomRoute: true,
+          customRoute: const PlayersRosterPage(),
         ),
         _buildMenuCard(
           context,

@@ -72,4 +72,39 @@ class PlayerService {
       throw Exception('Error updating player: $e');
     }
   }
+
+  Future<Player> togglePlayerConfirmed(int id) async {
+    try {
+      final response = await http.patch(
+        Uri.parse('${ApiConfig.baseUrl}/players/$id/confirm'),
+        headers: ApiConfig.headers,
+      );
+
+      if (response.statusCode == 200) {
+        return Player.fromJson(json.decode(response.body));
+      } else {
+        throw Exception('Failed to toggle player confirmation: ${response.statusCode}');
+      }
+    } catch (e) {
+      throw Exception('Error toggling player confirmation: $e');
+    }
+  }
+
+  Future<List<Player>> getConfirmedPlayers() async {
+    try {
+      final response = await http.get(
+        Uri.parse('${ApiConfig.baseUrl}/players/confirmed'),
+        headers: ApiConfig.headers,
+      );
+
+      if (response.statusCode == 200) {
+        final List<dynamic> data = json.decode(response.body);
+        return data.map((json) => Player.fromJson(json)).toList();
+      } else {
+        throw Exception('Failed to load confirmed players: ${response.statusCode}');
+      }
+    } catch (e) {
+      throw Exception('Error fetching confirmed players: $e');
+    }
+  }
 }

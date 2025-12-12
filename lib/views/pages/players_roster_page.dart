@@ -1,0 +1,411 @@
+import 'package:flutter/material.dart';
+import '../../config/app_theme.dart';
+import '../../services/player_service.dart';
+import '../../models/player.dart';
+
+class PlayersRosterPage extends StatefulWidget {
+  const PlayersRosterPage({super.key});
+
+  @override
+  State<PlayersRosterPage> createState() => _PlayersRosterPageState();
+}
+
+class _PlayersRosterPageState extends State<PlayersRosterPage> {
+  final PlayerService _playerService = PlayerService();
+  List<Player> _players = [];
+  bool _isLoading = true;
+  bool _isProcessing = false;
+  final TextEditingController _nameController = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    _loadPlayers();
+  }
+
+  @override
+  void dispose() {
+    _nameController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _loadPlayers() async {
+    setState(() {
+      _isLoading = true;
+    });
+
+    try {
+      final players = await _playerService.getPlayers();
+      setState(() {
+        _players = players;
+        _isLoading = false;
+      });
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error loading players: ${e.toString()}'),
+            backgroundColor: AppColors.error,
+          ),
+        );
+      }
+    }
+  }
+
+  Future<void> _toggleConfirmed(Player player) async {
+    setState(() {
+      _isProcessing = true;
+    });
+
+    try {
+      final updatedPlayer = await _playerService.togglePlayerConfirmed(player.id);
+      setState(() {
+        final index = _players.indexWhere((p) => p.id == player.id);
+        if (index != -1) {
+          _players[index] = updatedPlayer;
+        }
+        _isProcessing = false;
+      });
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _isProcessing = false;
+        });
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error: ${e.toString()}'),
+            backgroundColor: AppColors.error,
+          ),
+        );
+      }
+    }
+  }
+
+  Future<void> _deletePlayer(Player player) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Delete Player'),
+        content: Text('Are you sure you want to delete ${player.name}?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            style: TextButton.styleFrom(foregroundColor: AppColors.error),
+            child: const Text('Delete'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed == true) {
+      setState(() {
+        _isProcessing = true;
+      });
+
+      try {
+        await _playerService.deletePlayer(player.id);
+        setState(() {
+          _players.removeWhere((p) => p.id == player.id);
+          _isProcessing = false;
+        });
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Player deleted successfully'),
+              backgroundColor: AppColors.sageGreen,
+            ),
+          );
+        }
+      } catch (e) {
+        if (mounted) {
+          setState(() {
+            _isProcessing = false;
+          });
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Error: ${e.toString()}'),
+              backgroundColor: AppColors.error,
+            ),
+          );
+        }
+      }
+    }
+  }
+
+  Future<void> _addPlayer() async {
+    final name = _nameController.text.trim();
+    if (name.isEmpty) return;
+
+    setState(() {
+      _isProcessing = true;
+    });
+
+    try {
+      final newPlayer = await _playerService.createPlayer(name, true);
+      setState(() {
+        _players.add(newPlayer);
+        _players.sort((a, b) => a.name.compareTo(b.name));
+        _nameController.clear();
+        _isProcessing = false;
+      });
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Player added successfully'),
+            backgroundColor: AppColors.sageGreen,
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _isProcessing = false;
+        });
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error: ${e.toString()}'),
+            backgroundColor: AppColors.error,
+          ),
+        );
+      }
+    }
+  }
+
+  void _showAddPlayerDialog() {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Add New Player'),
+        content: TextField(
+          controller: _nameController,
+          decoration: const InputDecoration(
+            hintText: 'Enter player name',
+            prefixIcon: Icon(Icons.person),
+          ),
+          autofocus: true,
+          onSubmitted: (_) {
+            Navigator.pop(context);
+            _addPlayer();
+          },
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.pop(context);
+              _addPlayer();
+            },
+            child: const Text('Add'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final confirmedCount = _players.where((p) => p.confirmed).length;
+    final unconfirmedCount = _players.length - confirmedCount;
+
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Players Roster'),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.refresh),
+            onPressed: _isLoading ? null : _loadPlayers,
+          ),
+        ],
+      ),
+      body: Column(
+        children: [
+          // Stats section
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: AppColors.surface,
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.1),
+                  blurRadius: 4,
+                  offset: const Offset(0, 2),
+                ),
+              ],
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: [
+                _buildStatCard(
+                  'Total',
+                  _players.length.toString(),
+                  AppColors.petrolBlue,
+                ),
+                _buildStatCard(
+                  'Confirmed',
+                  confirmedCount.toString(),
+                  AppColors.sageGreen,
+                ),
+                _buildStatCard(
+                  'Unconfirmed',
+                  unconfirmedCount.toString(),
+                  AppColors.ocher,
+                ),
+              ],
+            ),
+          ),
+          // Players list
+          Expanded(
+            child: _isLoading
+                ? const Center(child: CircularProgressIndicator())
+                : _players.isEmpty
+                    ? Center(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            const Icon(
+                              Icons.people_outline,
+                              size: 64,
+                              color: AppColors.textSecondary,
+                            ),
+                            const SizedBox(height: 16),
+                            Text(
+                              'No players in roster',
+                              style: Theme.of(context).textTheme.titleLarge,
+                            ),
+                            const SizedBox(height: 8),
+                            Text(
+                              'Add players to get started',
+                              style: Theme.of(context).textTheme.bodySmall,
+                            ),
+                          ],
+                        ),
+                      )
+                    : ListView.separated(
+                        padding: const EdgeInsets.all(16),
+                        itemCount: _players.length,
+                        separatorBuilder: (context, index) =>
+                            const SizedBox(height: 8),
+                        itemBuilder: (context, index) {
+                          final player = _players[index];
+                          return Card(
+                            elevation: 2,
+                            child: ListTile(
+                              leading: CircleAvatar(
+                                backgroundColor: player.confirmed
+                                    ? AppColors.sageGreen
+                                    : AppColors.ocher,
+                                child: Text(
+                                  player.name[0].toUpperCase(),
+                                  style: const TextStyle(
+                                    color: AppColors.white,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ),
+                              title: Text(
+                                player.name,
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                              subtitle: Row(
+                                children: [
+                                  Icon(
+                                    player.confirmed
+                                        ? Icons.check_circle
+                                        : Icons.cancel,
+                                    size: 16,
+                                    color: player.confirmed
+                                        ? AppColors.sageGreen
+                                        : AppColors.ocher,
+                                  ),
+                                  const SizedBox(width: 4),
+                                  Text(
+                                    player.confirmed
+                                        ? 'Confirmed'
+                                        : 'Not confirmed',
+                                    style: TextStyle(
+                                      color: player.confirmed
+                                          ? AppColors.sageGreen
+                                          : AppColors.ocher,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              trailing: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  IconButton(
+                                    icon: Icon(
+                                      player.confirmed
+                                          ? Icons.toggle_on
+                                          : Icons.toggle_off,
+                                      size: 32,
+                                    ),
+                                    color: player.confirmed
+                                        ? AppColors.sageGreen
+                                        : AppColors.textSecondary,
+                                    onPressed: _isProcessing
+                                        ? null
+                                        : () => _toggleConfirmed(player),
+                                    tooltip: 'Toggle confirmation',
+                                  ),
+                                  IconButton(
+                                    icon: const Icon(Icons.delete_outline),
+                                    color: AppColors.error,
+                                    onPressed: _isProcessing
+                                        ? null
+                                        : () => _deletePlayer(player),
+                                    tooltip: 'Delete player',
+                                  ),
+                                ],
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+          ),
+        ],
+      ),
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: _isProcessing ? null : _showAddPlayerDialog,
+        icon: const Icon(Icons.person_add),
+        label: const Text('Add Player'),
+        backgroundColor: AppColors.sageGreen,
+      ),
+    );
+  }
+
+  Widget _buildStatCard(String label, String value, Color color) {
+    return Column(
+      children: [
+        Text(
+          value,
+          style: TextStyle(
+            fontSize: 28,
+            fontWeight: FontWeight.bold,
+            color: color,
+          ),
+        ),
+        const SizedBox(height: 4),
+        Text(
+          label,
+          style: const TextStyle(
+            fontSize: 14,
+            color: AppColors.textSecondary,
+          ),
+        ),
+      ],
+    );
+  }
+}

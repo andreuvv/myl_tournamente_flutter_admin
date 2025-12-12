@@ -38,8 +38,7 @@ class _FixtureConfigPageState extends State<FixtureConfigPage> {
     });
 
     try {
-      final players = await _playerService.getPlayers();
-      final confirmed = players.where((p) => p.confirmed).toList();
+      final confirmed = await _playerService.getConfirmedPlayers();
       setState(() {
         _confirmedPlayers = confirmed;
         // Set default rounds to full round-robin cycle
