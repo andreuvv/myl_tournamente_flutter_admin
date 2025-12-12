@@ -63,21 +63,6 @@ class PlayerController extends ChangeNotifier {
     }
   }
 
-  Future<bool> deletePlayer(int id) async {
-    _error = null;
-
-    try {
-      await _service.deletePlayer(id);
-      _players.removeWhere((p) => p.id == id);
-      notifyListeners();
-      return true;
-    } catch (e) {
-      _error = e.toString();
-      notifyListeners();
-      return false;
-    }
-  }
-
   void clearError() {
     _error = null;
     notifyListeners();
