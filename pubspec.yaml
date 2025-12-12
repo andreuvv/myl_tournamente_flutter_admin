@@ -111,5 +111,8 @@ flutter_launcher_icons:
   image_path: "assets/icon/app_icon.png"
   adaptive_icon_background: "#2D2D2D"
   adaptive_icon_foreground: "assets/icon/app_icon.png"
+  min_sdk_android: 21
+  # Add padding to prevent the icon from being cropped
+  adaptive_icon_padding: 20
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/to/font-from-package

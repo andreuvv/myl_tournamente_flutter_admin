@@ -45,7 +45,7 @@ class HomePageContent extends StatelessWidget {
                   ),
                   const SizedBox(height: 24),
                   Text(
-                    'MYL Tournament',
+                    'Premier Mitológico',
                     style: Theme.of(context).textTheme.displayLarge?.copyWith(
                       color: AppColors.textPrimary,
                       fontWeight: FontWeight.bold,
