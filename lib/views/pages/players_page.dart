@@ -24,7 +24,16 @@ class _PlayersPageState extends State<PlayersPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Players')),
+      appBar: AppBar(
+        title: const Text('Players'),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.add),
+            onPressed: () => _showAddPlayerDialog(context),
+            tooltip: 'Add Player',
+          ),
+        ],
+      ),
       body: Consumer<PlayerController>(
         builder: (context, controller, child) {
           if (controller.isLoading) {
@@ -97,10 +106,6 @@ class _PlayersPageState extends State<PlayersPage> {
             ),
           );
         },
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () => _showAddPlayerDialog(context),
-        child: const Icon(Icons.add),
       ),
     );
   }

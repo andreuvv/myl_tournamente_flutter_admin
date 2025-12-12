@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 import '../../models/player.dart';
-import '../../controllers/player_controller.dart';
 import '../../config/app_theme.dart';
 
 class PlayerListItem extends StatelessWidget {
@@ -42,50 +40,8 @@ class PlayerListItem extends StatelessWidget {
                 size: 20,
               ),
             const SizedBox(width: 8),
-            IconButton(
-              icon: const Icon(Icons.delete_outline),
-              color: AppColors.error,
-              onPressed: () => _confirmDelete(context),
-            ),
           ],
         ),
-      ),
-    );
-  }
-
-  void _confirmDelete(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Delete Player'),
-        content: Text('Are you sure you want to delete ${player.name}?'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
-          ),
-          ElevatedButton(
-            onPressed: () async {
-              final controller = context.read<PlayerController>();
-              final success = await controller.deletePlayer(player.id);
-              if (context.mounted) {
-                Navigator.pop(context);
-                if (!success) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text(
-                        controller.error ?? 'Failed to delete player',
-                      ),
-                      backgroundColor: AppColors.error,
-                    ),
-                  );
-                }
-              }
-            },
-            style: ElevatedButton.styleFrom(backgroundColor: AppColors.error),
-            child: const Text('Delete'),
-          ),
-        ],
       ),
     );
   }

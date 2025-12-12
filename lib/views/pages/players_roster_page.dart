@@ -86,79 +86,6 @@ class _PlayersRosterPageState extends State<PlayersRosterPage> {
     }
   }
 
-  Future<void> _addPlayer() async {
-    final name = _nameController.text.trim();
-    if (name.isEmpty) return;
-
-    setState(() {
-      _isProcessing = true;
-    });
-
-    try {
-      final newPlayer = await _playerService.createPlayer(name, true);
-      setState(() {
-        _players.add(newPlayer);
-        _players.sort((a, b) => a.name.compareTo(b.name));
-        _nameController.clear();
-        _isProcessing = false;
-      });
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Player added successfully'),
-            backgroundColor: AppColors.sageGreen,
-          ),
-        );
-      }
-    } catch (e) {
-      if (mounted) {
-        setState(() {
-          _isProcessing = false;
-        });
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Error: ${e.toString()}'),
-            backgroundColor: AppColors.error,
-          ),
-        );
-      }
-    }
-  }
-
-  void _showAddPlayerDialog() {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Add New Player'),
-        content: TextField(
-          controller: _nameController,
-          decoration: const InputDecoration(
-            hintText: 'Enter player name',
-            prefixIcon: Icon(Icons.person),
-          ),
-          autofocus: true,
-          onSubmitted: (_) {
-            Navigator.pop(context);
-            _addPlayer();
-          },
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              Navigator.pop(context);
-              _addPlayer();
-            },
-            child: const Text('Add'),
-          ),
-        ],
-      ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     final confirmedCount = _players.where((p) => p.confirmed).length;
@@ -184,7 +111,7 @@ class _PlayersRosterPageState extends State<PlayersRosterPage> {
                 color: AppColors.surface,
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.1),
+                    color: Colors.black.withAlpha(25),
                     blurRadius: 4,
                     offset: const Offset(0, 2),
                   ),
@@ -316,12 +243,6 @@ class _PlayersRosterPageState extends State<PlayersRosterPage> {
                     ),
             ),
           ],
-        ),
-        floatingActionButton: FloatingActionButton.extended(
-          onPressed: _isProcessing ? null : _showAddPlayerDialog,
-          icon: const Icon(Icons.person_add),
-          label: const Text('Add Player'),
-          backgroundColor: AppColors.sageGreen,
         ),
       ),
     );
