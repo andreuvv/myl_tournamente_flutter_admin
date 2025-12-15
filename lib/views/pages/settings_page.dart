@@ -76,6 +76,177 @@ class _SettingsPageState extends State<SettingsPage> {
     }
   }
 
+  Future<void> _archiveTournament() async {
+    final formKey = GlobalKey<FormState>();
+    String name = '';
+    String month = 'Enero';
+    int year = DateTime.now().year;
+    DateTime startDate = DateTime.now();
+    DateTime endDate = DateTime.now();
+
+    final months = [
+      'Enero',
+      'Febrero',
+      'Marzo',
+      'Abril',
+      'Mayo',
+      'Junio',
+      'Julio',
+      'Agosto',
+      'Septiembre',
+      'Octubre',
+      'Noviembre',
+      'Diciembre',
+    ];
+
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => StatefulBuilder(
+        builder: (context, setDialogState) => AlertDialog(
+          title: const Text('Archive Tournament'),
+          content: Form(
+            key: formKey,
+            child: SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  TextFormField(
+                    decoration: const InputDecoration(
+                      labelText: 'Tournament Name',
+                      hintText: 'e.g., Premier Mitológico',
+                    ),
+                    validator: (value) =>
+                        value?.isEmpty ?? true ? 'Name required' : null,
+                    onSaved: (value) => name = value ?? '',
+                  ),
+                  const SizedBox(height: 16),
+                  DropdownButtonFormField<String>(
+                    value: month,
+                    decoration: const InputDecoration(labelText: 'Month'),
+                    items: months
+                        .map((m) => DropdownMenuItem(value: m, child: Text(m)))
+                        .toList(),
+                    onChanged: (value) =>
+                        setDialogState(() => month = value ?? 'Enero'),
+                  ),
+                  const SizedBox(height: 16),
+                  TextFormField(
+                    decoration: const InputDecoration(labelText: 'Year'),
+                    initialValue: year.toString(),
+                    keyboardType: TextInputType.number,
+                    validator: (value) {
+                      final y = int.tryParse(value ?? '');
+                      return y == null ? 'Invalid year' : null;
+                    },
+                    onSaved: (value) =>
+                        year = int.tryParse(value ?? '') ?? year,
+                  ),
+                  const SizedBox(height: 16),
+                  ListTile(
+                    title: const Text('Start Date'),
+                    subtitle: Text(
+                      '${startDate.day}/${startDate.month}/${startDate.year}',
+                    ),
+                    trailing: const Icon(Icons.calendar_today),
+                    onTap: () async {
+                      final date = await showDatePicker(
+                        context: context,
+                        initialDate: startDate,
+                        firstDate: DateTime(2020),
+                        lastDate: DateTime(2030),
+                      );
+                      if (date != null) {
+                        setDialogState(() => startDate = date);
+                      }
+                    },
+                  ),
+                  ListTile(
+                    title: const Text('End Date'),
+                    subtitle: Text(
+                      '${endDate.day}/${endDate.month}/${endDate.year}',
+                    ),
+                    trailing: const Icon(Icons.calendar_today),
+                    onTap: () async {
+                      final date = await showDatePicker(
+                        context: context,
+                        initialDate: endDate,
+                        firstDate: DateTime(2020),
+                        lastDate: DateTime(2030),
+                      );
+                      if (date != null) {
+                        setDialogState(() => endDate = date);
+                      }
+                    },
+                  ),
+                ],
+              ),
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context, false),
+              child: const Text('Cancel'),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                if (formKey.currentState?.validate() ?? false) {
+                  formKey.currentState?.save();
+                  Navigator.pop(context, true);
+                }
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.sageGreen,
+              ),
+              child: const Text('Archive'),
+            ),
+          ],
+        ),
+      ),
+    );
+
+    if (confirmed != true) return;
+
+    setState(() {
+      _isLoading = true;
+    });
+
+    try {
+      await _tournamentService.archiveTournament(
+        name: name,
+        month: month,
+        year: year,
+        startDate:
+            '${startDate.year}-${startDate.month.toString().padLeft(2, '0')}-${startDate.day.toString().padLeft(2, '0')}',
+        endDate:
+            '${endDate.year}-${endDate.month.toString().padLeft(2, '0')}-${endDate.day.toString().padLeft(2, '0')}',
+      );
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Tournament archived successfully!'),
+            backgroundColor: AppColors.sageGreen,
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error: ${e.toString()}'),
+            backgroundColor: AppColors.error,
+          ),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -83,6 +254,52 @@ class _SettingsPageState extends State<SettingsPage> {
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
+          Card(
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Icon(Icons.archive, color: AppColors.sageGreen),
+                      const SizedBox(width: 8),
+                      Text(
+                        'Tournament Archive',
+                        style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 16),
+                  const Text(
+                    'Save the current tournament data before clearing. This preserves all standings and match results for historical records.',
+                  ),
+                  const SizedBox(height: 24),
+                  SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton.icon(
+                      onPressed: _isLoading ? null : _archiveTournament,
+                      icon: _isLoading
+                          ? const SizedBox(
+                              width: 20,
+                              height: 20,
+                              child: CircularProgressIndicator(strokeWidth: 2),
+                            )
+                          : const Icon(Icons.archive),
+                      label: const Text('Archive Current Tournament'),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppColors.sageGreen,
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          const SizedBox(height: 16),
           Card(
             child: Padding(
               padding: const EdgeInsets.all(16),
