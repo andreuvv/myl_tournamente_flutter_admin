@@ -78,7 +78,7 @@ class _SettingsPageState extends State<SettingsPage> {
 
   Future<void> _archiveTournament() async {
     final formKey = GlobalKey<FormState>();
-    String name = '';
+    final nameController = TextEditingController();
     String month = 'Enero';
     int year = DateTime.now().year;
     DateTime startDate = DateTime.now();
@@ -111,13 +111,13 @@ class _SettingsPageState extends State<SettingsPage> {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   TextFormField(
+                    controller: nameController,
                     decoration: const InputDecoration(
                       labelText: 'Tournament Name',
                       hintText: 'e.g., Premier Mitológico',
                     ),
                     validator: (value) =>
                         value?.isEmpty ?? true ? 'Name required' : null,
-                    onSaved: (value) => name = value ?? '',
                   ),
                   const SizedBox(height: 16),
                   DropdownButtonFormField<String>(
@@ -138,8 +138,7 @@ class _SettingsPageState extends State<SettingsPage> {
                       final y = int.tryParse(value ?? '');
                       return y == null ? 'Invalid year' : null;
                     },
-                    onSaved: (value) =>
-                        year = int.tryParse(value ?? '') ?? year,
+                    onChanged: (value) => year = int.tryParse(value) ?? year,
                   ),
                   const SizedBox(height: 16),
                   ListTile(
@@ -190,7 +189,6 @@ class _SettingsPageState extends State<SettingsPage> {
             ElevatedButton(
               onPressed: () {
                 if (formKey.currentState?.validate() ?? false) {
-                  formKey.currentState?.save();
                   Navigator.pop(context, true);
                 }
               },
@@ -211,6 +209,11 @@ class _SettingsPageState extends State<SettingsPage> {
     });
 
     try {
+      final name = nameController.text.trim();
+      if (name.isEmpty) {
+        throw Exception('Tournament name cannot be empty');
+      }
+
       await _tournamentService.archiveTournament(
         name: name,
         month: month,
@@ -226,15 +229,24 @@ class _SettingsPageState extends State<SettingsPage> {
           const SnackBar(
             content: Text('Tournament archived successfully!'),
             backgroundColor: AppColors.sageGreen,
+            duration: Duration(seconds: 3),
           ),
         );
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Error: ${e.toString()}'),
-            backgroundColor: AppColors.error,
+        // Show full error in a dialog for better debugging
+        showDialog(
+          context: context,
+          builder: (context) => AlertDialog(
+            title: const Text('Archive Failed'),
+            content: SingleChildScrollView(child: SelectableText(e.toString())),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text('OK'),
+              ),
+            ],
           ),
         );
       }

@@ -10,29 +10,39 @@ class TournamentService {
     required String startDate,
     required String endDate,
   }) async {
+    final requestBody = {
+      'name': name,
+      'month': month,
+      'year': year,
+      'start_date': startDate,
+      'end_date': endDate,
+    };
+
     try {
       final response = await http.post(
         Uri.parse('${ApiConfig.baseUrl}/tournaments/archive'),
         headers: ApiConfig.headers,
-        body: jsonEncode({
-          'name': name,
-          'month': month,
-          'year': year,
-          'start_date': startDate,
-          'end_date': endDate,
-        }),
+        body: jsonEncode(requestBody),
       );
 
       if (response.statusCode != 200 && response.statusCode != 201) {
-        final errorBody = response.body.isNotEmpty
-            ? response.body
-            : 'No error details';
+        // Try to parse error message from response
+        String errorMessage = 'Unknown error';
+        try {
+          final errorJson = jsonDecode(response.body);
+          errorMessage = errorJson['error'] ?? response.body;
+        } catch (_) {
+          errorMessage = response.body.isNotEmpty
+              ? response.body
+              : 'HTTP ${response.statusCode}';
+        }
         throw Exception(
-          'Failed to archive tournament: ${response.statusCode} - $errorBody',
+          'Archive failed (${response.statusCode}): $errorMessage',
         );
       }
     } catch (e) {
-      throw Exception('Error archiving tournament: $e');
+      if (e is Exception) rethrow;
+      throw Exception('Network error: $e');
     }
   }
 
