@@ -358,27 +358,6 @@ class _SettingsPageState extends State<SettingsPage> {
                       ),
                     ),
                   ),
-                  const SizedBox(height: 12),
-                  SizedBox(
-                    width: double.infinity,
-                    child: ElevatedButton.icon(
-                      onPressed: _isLoading
-                          ? null
-                          : () => _clearTournament(clearPlayers: true),
-                      icon: _isLoading
-                          ? const SizedBox(
-                              width: 20,
-                              height: 20,
-                              child: CircularProgressIndicator(strokeWidth: 2),
-                            )
-                          : const Icon(Icons.delete_forever),
-                      label: const Text('Clear All Data (Including Players)'),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.error,
-                        padding: const EdgeInsets.symmetric(vertical: 16),
-                      ),
-                    ),
-                  ),
                 ],
               ),
             ),
