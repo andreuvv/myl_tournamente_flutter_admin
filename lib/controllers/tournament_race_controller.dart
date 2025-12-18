@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 import '../models/tournament.dart';
 import '../services/tournament_service.dart';
 import '../services/tournament_race_service.dart';

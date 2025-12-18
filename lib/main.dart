@@ -12,7 +12,6 @@ import 'views/pages/players_page.dart';
 import 'views/pages/fixtures_page.dart';
 import 'views/pages/standings_page.dart';
 import 'views/pages/matches_page.dart';
-import 'pages/tournament_player_races_page.dart';
 
 Future<void> main() async {
   // Load environment variables

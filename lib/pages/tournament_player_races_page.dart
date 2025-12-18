@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:myl_tournament_admin/config/app_theme.dart';
 import 'package:provider/provider.dart';
 import '../controllers/tournament_race_controller.dart';
 import '../models/tournament.dart';
@@ -201,15 +202,15 @@ class PlayerRaceListTile extends StatelessWidget {
         children: [
           if (raceData.racePb != null)
             Chip(
-              label: Text('PB: ${raceData.racePb}'),
-              backgroundColor: Colors.lightBlue[200],
+              label: Text('PB: ${raceData.racePb}', style: const TextStyle(color: AppColors.coalGrey)),
+              backgroundColor: AppColors.petrolBlue,
               labelStyle: const TextStyle(fontSize: 11),
             ),
           const SizedBox(width: 4),
           if (raceData.raceBf != null)
             Chip(
-              label: Text('BF: ${raceData.raceBf}'),
-              backgroundColor: Colors.lightGreen[200],
+              label: Text('BF: ${raceData.raceBf}', style: const TextStyle(color: AppColors.coalGrey)),
+              backgroundColor: AppColors.sageGreen,
               labelStyle: const TextStyle(fontSize: 11),
             ),
         ],
