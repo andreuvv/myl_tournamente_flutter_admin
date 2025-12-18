@@ -5,7 +5,7 @@ import '../controllers/tournament_race_controller.dart';
 import '../models/tournament.dart';
 
 class TournamentPlayerRacesPage extends StatefulWidget {
-  const TournamentPlayerRacesPage({Key? key}) : super(key: key);
+  const TournamentPlayerRacesPage({super.key});
 
   @override
   State<TournamentPlayerRacesPage> createState() =>
@@ -253,7 +253,7 @@ class _RaceSelectionModalState extends State<RaceSelectionModal> {
 
   final List<String> pbRaceOptions = [
     'Caballero',
-    'Faeire',
+    'Faerie',
     'Dragón',
     'Olímpico',
     'Titán',
@@ -264,6 +264,7 @@ class _RaceSelectionModalState extends State<RaceSelectionModal> {
     'Sacerdote',
     'Faraón',
     'Eterno',
+    'Tótem',
   ];
 
   final List<String> bfRaceOptions = [
@@ -277,6 +278,7 @@ class _RaceSelectionModalState extends State<RaceSelectionModal> {
     'Ancestral',
     'Héroe',
     'Bárbaro',
+    'Tótem',
   ];
 
   @override
