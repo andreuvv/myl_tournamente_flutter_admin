@@ -1,8 +1,27 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import '../config/api_config.dart';
+import '../models/tournament.dart';
 
 class TournamentService {
+  Future<List<ArchivedTournament>> getTournaments() async {
+    try {
+      final response = await http.get(
+        Uri.parse('${ApiConfig.baseUrl}/tournaments'),
+        headers: ApiConfig.headers,
+      );
+
+      if (response.statusCode != 200) {
+        throw Exception('Failed to load tournaments: ${response.statusCode}');
+      }
+
+      final List<dynamic> jsonData = jsonDecode(response.body);
+      return jsonData.map((json) => ArchivedTournament.fromJson(json)).toList();
+    } catch (e) {
+      throw Exception('Error loading tournaments: $e');
+    }
+  }
+
   Future<void> archiveTournament({
     required String name,
     required String month,

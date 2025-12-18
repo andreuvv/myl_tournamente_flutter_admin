@@ -5,6 +5,7 @@ import 'settings_page.dart';
 import 'player_management_page.dart';
 import 'players_roster_page.dart';
 import 'fixture_config_page.dart';
+import '../../pages/tournament_player_races_page.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
@@ -138,6 +139,15 @@ class HomePageContent extends StatelessWidget {
           color: AppColors.petrolBlue.withOpacity(0.8),
           isCustomRoute: true,
           customRoute: const FixtureConfigPage(),
+        ),
+        _buildMenuCard(
+          context,
+          icon: Icons.history,
+          title: 'Edit Players Info',
+          description: 'Manage player per tournament',
+          color: AppColors.sageGreen.withOpacity(0.6),
+          isCustomRoute: true,
+          customRoute: const TournamentPlayerRacesPage(),
         ),
         _buildMenuCard(
           context,

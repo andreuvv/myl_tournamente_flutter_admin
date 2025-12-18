@@ -6,11 +6,13 @@ import 'controllers/player_controller.dart';
 import 'controllers/fixture_controller.dart';
 import 'controllers/match_controller.dart';
 import 'controllers/standings_controller.dart';
+import 'controllers/tournament_race_controller.dart';
 import 'views/pages/home_page.dart' as home;
 import 'views/pages/players_page.dart';
 import 'views/pages/fixtures_page.dart';
 import 'views/pages/standings_page.dart';
 import 'views/pages/matches_page.dart';
+import 'pages/tournament_player_races_page.dart';
 
 Future<void> main() async {
   // Load environment variables
@@ -29,6 +31,7 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => FixtureController()),
         ChangeNotifierProvider(create: (_) => MatchController()),
         ChangeNotifierProvider(create: (_) => StandingsController()),
+        ChangeNotifierProvider(create: (_) => TournamentRaceController()),
       ],
       child: MaterialApp(
         title: 'MYL Tournament Admin',
