@@ -133,10 +133,8 @@ class _FixtureConfigPageState extends State<FixtureConfigPage> {
         final player1 = workingPlayers[home];
         final player2 = workingPlayers[away];
 
-        // Skip if either player is a BYE
-        if (player1.id != -1 && player2.id != -1) {
-          matches.add(MatchPairing(player1: player1, player2: player2));
-        }
+        // Include all matches, including BYE matches
+        matches.add(MatchPairing(player1: player1, player2: player2));
       }
 
       rounds.add(
@@ -420,11 +418,26 @@ class _FixtureConfigPageState extends State<FixtureConfigPage> {
                             ],
                           ),
                           children: round.matches.map((match) {
+                            final isBye =
+                                match.player1.name == 'BYE' ||
+                                match.player2.name == 'BYE';
                             return ListTile(
                               dense: true,
                               title: Text(
-                                '${match.player1.name} vs ${match.player2.name}',
-                                style: const TextStyle(fontSize: 14),
+                                isBye
+                                    ? '${match.player1.name == 'BYE' ? match.player2.name : match.player1.name} (BYE)'
+                                    : '${match.player1.name} vs ${match.player2.name}',
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  color: isBye
+                                      ? Theme.of(
+                                          context,
+                                        ).textTheme.bodySmall?.color
+                                      : null,
+                                  fontStyle: isBye
+                                      ? FontStyle.italic
+                                      : FontStyle.normal,
+                                ),
                               ),
                             );
                           }).toList(),

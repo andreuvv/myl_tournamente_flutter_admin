@@ -11,7 +11,11 @@ class MatchResultCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Determine if this is a bye match
+    final isBye = match.isByeMatch;
+
     return Card(
+      color: isBye ? AppColors.surface.withOpacity(0.7) : null,
       child: InkWell(
         onTap: () => _showEditDialog(context),
         borderRadius: BorderRadius.circular(8),
@@ -27,15 +31,26 @@ class MatchResultCard extends StatelessWidget {
                       match.player1Name,
                       match.score1,
                       match.winner == match.player1Name,
+                      isBye: isBye,
                     ),
                   ),
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 16),
-                    child: Text(
-                      'VS',
-                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        color: AppColors.textSecondary,
-                      ),
+                    child: Column(
+                      children: [
+                        Text(
+                          isBye ? 'BYE' : 'VS',
+                          style: Theme.of(context).textTheme.titleMedium
+                              ?.copyWith(
+                                color: isBye
+                                    ? AppColors.ocher
+                                    : AppColors.textSecondary,
+                                fontWeight: isBye
+                                    ? FontWeight.bold
+                                    : FontWeight.normal,
+                              ),
+                        ),
+                      ],
                     ),
                   ),
                   Expanded(
@@ -45,6 +60,7 @@ class MatchResultCard extends StatelessWidget {
                       match.score2,
                       match.winner == match.player2Name,
                       isPlayer2: true,
+                      isBye: isBye,
                     ),
                   ),
                 ],
@@ -76,6 +92,27 @@ class MatchResultCard extends StatelessWidget {
                   ),
                 ),
               ],
+              if (isBye && match.completed) ...[
+                const SizedBox(height: 8),
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 4,
+                  ),
+                  decoration: BoxDecoration(
+                    color: AppColors.sageGreen.withOpacity(0.2),
+                    borderRadius: BorderRadius.circular(4),
+                  ),
+                  child: const Text(
+                    'BYE RECORDED',
+                    style: TextStyle(
+                      color: AppColors.sageGreen,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 12,
+                    ),
+                  ),
+                ),
+              ],
             ],
           ),
         ),
@@ -89,7 +126,10 @@ class MatchResultCard extends StatelessWidget {
     int? score,
     bool isWinner, {
     bool isPlayer2 = false,
+    bool isBye = false,
   }) {
+    final isByeName = name == 'BYE';
+
     return Column(
       crossAxisAlignment: isPlayer2
           ? CrossAxisAlignment.end
@@ -98,17 +138,27 @@ class MatchResultCard extends StatelessWidget {
         Text(
           name,
           style: Theme.of(context).textTheme.titleMedium?.copyWith(
-            fontWeight: isWinner ? FontWeight.bold : FontWeight.normal,
-            color: isWinner ? AppColors.sageGreen : AppColors.textPrimary,
+            fontWeight: isWinner || isByeName
+                ? FontWeight.bold
+                : FontWeight.normal,
+            color: isByeName
+                ? AppColors.ocher
+                : isWinner
+                ? AppColors.sageGreen
+                : AppColors.textPrimary,
           ),
           textAlign: isPlayer2 ? TextAlign.right : TextAlign.left,
         ),
         const SizedBox(height: 4),
         Text(
-          score?.toString() ?? '-',
+          isByeName ? '—' : (score?.toString() ?? '-'),
           style: Theme.of(context).textTheme.headlineMedium?.copyWith(
             fontWeight: FontWeight.bold,
-            color: isWinner ? AppColors.sageGreen : AppColors.textSecondary,
+            color: isByeName
+                ? AppColors.textSecondary
+                : isWinner
+                ? AppColors.sageGreen
+                : AppColors.textSecondary,
           ),
         ),
       ],

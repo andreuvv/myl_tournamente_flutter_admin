@@ -51,6 +51,8 @@ class Match {
 
   bool get isCompleted => completed;
 
+  bool get isByeMatch => player1Name == 'BYE' || player2Name == 'BYE';
+
   String? get winner {
     if (!completed || score1 == null || score2 == null) return null;
     if (score1! > score2!) return player1Name;
