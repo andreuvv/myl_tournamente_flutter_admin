@@ -128,6 +128,7 @@ class TournamentRaceController extends ChangeNotifier {
   // Save player race data to backend
   Future<bool> savePlayerRace(
     int playerId,
+    String playerName,
     String? racePb,
     String? raceBf,
     String? notes,
@@ -142,6 +143,7 @@ class TournamentRaceController extends ChangeNotifier {
       await _raceService.updatePlayerRace(
         selectedTournament!.id,
         playerId,
+        playerName,
         racePb,
         raceBf,
         notes,

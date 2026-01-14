@@ -57,6 +57,7 @@ class TournamentRaceService {
   Future<void> updatePlayerRace(
     int tournamentId,
     int playerId,
+    String playerName,
     String? racePb,
     String? raceBf,
     String? notes,
@@ -68,6 +69,7 @@ class TournamentRaceService {
         ),
         headers: ApiConfig.headers,
         body: jsonEncode({
+          'player_name': playerName,
           'race_pb': racePb,
           'race_bf': raceBf,
           'notes': notes,

@@ -161,6 +161,7 @@ class _TournamentPlayerRacesPageState extends State<TournamentPlayerRacesPage> {
         onSave: (racePb, raceBf, notes) async {
           final success = await controller.savePlayerRace(
             player.id,
+            player.name,
             racePb,
             raceBf,
             notes,
@@ -202,14 +203,20 @@ class PlayerRaceListTile extends StatelessWidget {
         children: [
           if (raceData.racePb != null)
             Chip(
-              label: Text('PB: ${raceData.racePb}', style: const TextStyle(color: AppColors.coalGrey)),
+              label: Text(
+                'PB: ${raceData.racePb}',
+                style: const TextStyle(color: AppColors.coalGrey),
+              ),
               backgroundColor: AppColors.petrolBlue,
               labelStyle: const TextStyle(fontSize: 11),
             ),
           const SizedBox(width: 4),
           if (raceData.raceBf != null)
             Chip(
-              label: Text('BF: ${raceData.raceBf}', style: const TextStyle(color: AppColors.coalGrey)),
+              label: Text(
+                'BF: ${raceData.raceBf}',
+                style: const TextStyle(color: AppColors.coalGrey),
+              ),
               backgroundColor: AppColors.sageGreen,
               labelStyle: const TextStyle(fontSize: 11),
             ),
