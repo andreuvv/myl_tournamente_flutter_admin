@@ -5,6 +5,7 @@ import 'settings_page.dart';
 import 'player_management_page.dart';
 import 'players_roster_page.dart';
 import 'fixture_config_page.dart';
+import 'online_tournament_config_page.dart';
 import '../../pages/tournament_player_races_page.dart';
 
 class HomePage extends StatelessWidget {
@@ -86,7 +87,7 @@ class HomePageContent extends StatelessWidget {
       crossAxisCount: 2,
       mainAxisSpacing: 16,
       crossAxisSpacing: 16,
-      childAspectRatio: 1.1,
+      childAspectRatio: 0.95,
       physics: const NeverScrollableScrollPhysics(),
       children: [
         _buildMenuCard(
@@ -139,6 +140,15 @@ class HomePageContent extends StatelessWidget {
           color: AppColors.petrolBlue.withOpacity(0.8),
           isCustomRoute: true,
           customRoute: const FixtureConfigPage(),
+        ),
+        _buildMenuCard(
+          context,
+          icon: Icons.cloud_upload,
+          title: 'Online Tournament',
+          description: 'Create round-robin tournament',
+          color: Colors.teal,
+          isCustomRoute: true,
+          customRoute: const OnlineTournamentConfigPage(),
         ),
         _buildMenuCard(
           context,
@@ -209,7 +219,7 @@ class HomePageContent extends StatelessWidget {
                 description,
                 style: Theme.of(context).textTheme.bodySmall,
                 textAlign: TextAlign.center,
-                maxLines: 2,
+                maxLines: 3,
                 overflow: TextOverflow.ellipsis,
               ),
             ],
