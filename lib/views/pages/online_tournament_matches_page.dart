@@ -434,6 +434,14 @@ class _OnlineTournamentMatchesPageState
                 score2,
               );
 
+              // Reload matches and standings after update
+              await context
+                  .read<OnlineTournamentController>()
+                  .loadTournamentMatches(widget.tournament.id);
+              await context
+                  .read<OnlineTournamentController>()
+                  .loadTournamentStandings(widget.tournament.id);
+
               if (mounted) {
                 Navigator.pop(context);
                 ScaffoldMessenger.of(
