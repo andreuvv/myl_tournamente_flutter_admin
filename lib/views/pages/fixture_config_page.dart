@@ -101,6 +101,9 @@ class _FixtureConfigPageState extends State<FixtureConfigPage> {
 
     final n = workingPlayers.length;
 
+    // Randomly choose starting format when in 'both' mode
+    final randomStartWithPB = Random().nextBool();
+
     for (int roundIndex = 0; roundIndex < numberOfRounds; roundIndex++) {
       final cycleRound = roundIndex % roundsPerCycle;
 
@@ -110,8 +113,8 @@ class _FixtureConfigPageState extends State<FixtureConfigPage> {
       } else if (_formatMode == 'bf_only') {
         format = 'BF';
       } else {
-        // Alternate: PB first, then BF, then PB, etc.
-        format = (roundIndex + 1) % 2 == 1 ? 'PB' : 'BF';
+        // Alternate starting from random format: either PB first or BF first
+        format = ((roundIndex % 2 == 0) == randomStartWithPB) ? 'PB' : 'BF';
       }
 
       final matches = <MatchPairing>[];
