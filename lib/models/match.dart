@@ -2,6 +2,7 @@ class Match {
   final int id;
   final int roundNumber;
   final String format;
+  final String? subformat;
   final String player1Name;
   final String player2Name;
   final int? score1;
@@ -13,6 +14,7 @@ class Match {
     required this.id,
     required this.roundNumber,
     required this.format,
+    this.subformat,
     required this.player1Name,
     required this.player2Name,
     this.score1,
@@ -26,6 +28,7 @@ class Match {
       id: json['id'] as int,
       roundNumber: json['round_number'] as int,
       format: json['format'] as String,
+      subformat: json['subformat'] as String?,
       player1Name: json['player1_name'] as String,
       player2Name: json['player2_name'] as String,
       score1: json['score1'] as int?,
@@ -40,6 +43,7 @@ class Match {
       'id': id,
       'round_number': roundNumber,
       'format': format,
+      'subformat': subformat,
       'player1_name': player1Name,
       'player2_name': player2Name,
       'score1': score1,
@@ -67,6 +71,7 @@ class Match {
     int? id,
     int? roundNumber,
     String? format,
+    String? subformat,
     String? player1Name,
     String? player2Name,
     int? score1,
@@ -78,6 +83,7 @@ class Match {
       id: id ?? this.id,
       roundNumber: roundNumber ?? this.roundNumber,
       format: format ?? this.format,
+      subformat: subformat ?? this.subformat,
       player1Name: player1Name ?? this.player1Name,
       player2Name: player2Name ?? this.player2Name,
       score1: score1 ?? this.score1,

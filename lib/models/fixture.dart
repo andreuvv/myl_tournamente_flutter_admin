@@ -3,11 +3,13 @@ import 'match.dart';
 class FixtureRound {
   final int number;
   final String format;
+  final String? subformat;
   final List<Match> matches;
 
   FixtureRound({
     required this.number,
     required this.format,
+    this.subformat,
     required this.matches,
   });
 
@@ -15,6 +17,7 @@ class FixtureRound {
     return FixtureRound(
       number: json['number'] as int,
       format: json['format'] as String,
+      subformat: json['subformat'] as String?,
       matches: (json['matches'] as List<dynamic>)
           .map((m) => Match.fromJson(m as Map<String, dynamic>))
           .toList(),
@@ -25,6 +28,7 @@ class FixtureRound {
     return {
       'number': number,
       'format': format,
+      'subformat': subformat,
       'matches': matches.map((m) => m.toJson()).toList(),
     };
   }

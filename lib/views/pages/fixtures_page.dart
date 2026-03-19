@@ -36,9 +36,7 @@ class _FixturesPageState extends State<FixturesPage> {
       body: Consumer<FixtureController>(
         builder: (context, controller, child) {
           if (controller.isLoading) {
-            return const Center(
-              child: CircularProgressIndicator(),
-            );
+            return const Center(child: CircularProgressIndicator());
           }
 
           if (controller.error != null) {
@@ -46,11 +44,7 @@ class _FixturesPageState extends State<FixturesPage> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(
-                    Icons.error_outline,
-                    size: 48,
-                    color: AppColors.error,
-                  ),
+                  Icon(Icons.error_outline, size: 48, color: AppColors.error),
                   const SizedBox(height: 16),
                   Text(
                     'Error loading fixture',
@@ -76,7 +70,8 @@ class _FixturesPageState extends State<FixturesPage> {
             );
           }
 
-          if (controller.fixture == null || controller.fixture!.rounds.isEmpty) {
+          if (controller.fixture == null ||
+              controller.fixture!.rounds.isEmpty) {
             return Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -126,27 +121,55 @@ class _FixturesPageState extends State<FixturesPage> {
                         const SizedBox(width: 12),
                         Text('Round ${round.number}'),
                         const Spacer(),
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 8,
-                            vertical: 4,
-                          ),
-                          decoration: BoxDecoration(
-                            color: round.format == 'PB'
-                                ? AppColors.petrolBlue.withOpacity(0.2)
-                                : AppColors.ocher.withOpacity(0.2),
-                            borderRadius: BorderRadius.circular(4),
-                          ),
-                          child: Text(
-                            round.format,
-                            style: TextStyle(
-                              color: round.format == 'PB'
-                                  ? AppColors.petrolBlue
-                                  : AppColors.ocher,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 12,
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.end,
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 8,
+                                vertical: 4,
+                              ),
+                              decoration: BoxDecoration(
+                                color: round.format == 'PB'
+                                    ? AppColors.petrolBlue.withOpacity(0.2)
+                                    : AppColors.ocher.withOpacity(0.2),
+                                borderRadius: BorderRadius.circular(4),
+                              ),
+                              child: Text(
+                                round.format,
+                                style: TextStyle(
+                                  color: round.format == 'PB'
+                                      ? AppColors.petrolBlue
+                                      : AppColors.ocher,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 12,
+                                ),
+                              ),
                             ),
-                          ),
+                            if (round.subformat != null)
+                              Padding(
+                                padding: const EdgeInsets.only(top: 4),
+                                child: Container(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 6,
+                                    vertical: 2,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: AppColors.sageGreen.withOpacity(0.2),
+                                    borderRadius: BorderRadius.circular(3),
+                                  ),
+                                  child: Text(
+                                    round.subformat!,
+                                    style: const TextStyle(
+                                      color: AppColors.sageGreen,
+                                      fontWeight: FontWeight.w600,
+                                      fontSize: 10,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                          ],
                         ),
                       ],
                     ),

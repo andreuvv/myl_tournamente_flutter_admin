@@ -81,6 +81,9 @@ class _FixtureConfigPageState extends State<FixtureConfigPage> {
   /// Generates a round-robin tournament fixture
   /// Each player faces every other player exactly once per cycle
   /// If numberOfRounds exceeds one full cycle, it starts a new cycle
+  /// Subformats alternate within each format:
+  /// PB: PBRL -> PBRE -> PBRL -> ...
+  /// BF: BFRL -> BFVCR -> BFRL -> ...
   List<RoundConfig> _generateRoundRobinFixture(
     List<Player> players,
     int numberOfRounds,
@@ -101,17 +104,37 @@ class _FixtureConfigPageState extends State<FixtureConfigPage> {
 
     final n = workingPlayers.length;
 
+    // Subformat rotation trackers
+    List<String> pbSubformats = ['PBRL', 'PBRE'];
+    List<String> bfSubformats = ['BFRL', 'BFVCR'];
+    int pbSubformatIndex = Random().nextInt(2); // Randomly start with 0 or 1
+    int bfSubformatIndex = Random().nextInt(2); // Randomly start with 0 or 1
+
     for (int roundIndex = 0; roundIndex < numberOfRounds; roundIndex++) {
       final cycleRound = roundIndex % roundsPerCycle;
 
       String format;
+      String? subformat;
+
       if (_formatMode == 'pb_only') {
         format = 'PB';
+        subformat = pbSubformats[pbSubformatIndex];
+        pbSubformatIndex = (pbSubformatIndex + 1) % pbSubformats.length;
       } else if (_formatMode == 'bf_only') {
         format = 'BF';
+        subformat = bfSubformats[bfSubformatIndex];
+        bfSubformatIndex = (bfSubformatIndex + 1) % bfSubformats.length;
       } else {
         // Alternate: PB first, then BF, then PB, etc.
-        format = (roundIndex + 1) % 2 == 1 ? 'PB' : 'BF';
+        if ((roundIndex + 1) % 2 == 1) {
+          format = 'PB';
+          subformat = pbSubformats[pbSubformatIndex];
+          pbSubformatIndex = (pbSubformatIndex + 1) % pbSubformats.length;
+        } else {
+          format = 'BF';
+          subformat = bfSubformats[bfSubformatIndex];
+          bfSubformatIndex = (bfSubformatIndex + 1) % bfSubformats.length;
+        }
       }
 
       final matches = <MatchPairing>[];
@@ -141,6 +164,7 @@ class _FixtureConfigPageState extends State<FixtureConfigPage> {
         RoundConfig(
           roundNumber: roundIndex + 1,
           format: format,
+          subformat: subformat,
           matches: matches,
         ),
       );
@@ -180,6 +204,7 @@ class _FixtureConfigPageState extends State<FixtureConfigPage> {
                       (m) => {
                         'player1_name': m.player1.name,
                         'player2_name': m.player2.name,
+                        'subformat': r.subformat,
                       },
                     )
                     .toList(),
@@ -413,6 +438,31 @@ class _FixtureConfigPageState extends State<FixtureConfigPage> {
                                   ),
                                 ),
                               ),
+                              if (round.subformat != null) ...[
+                                const SizedBox(width: 8),
+                                Container(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 6,
+                                    vertical: 3,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: AppColors.ocher.withOpacity(0.2),
+                                    border: Border.all(
+                                      color: AppColors.ocher,
+                                      width: 1,
+                                    ),
+                                    borderRadius: BorderRadius.circular(3),
+                                  ),
+                                  child: Text(
+                                    round.subformat!,
+                                    style: const TextStyle(
+                                      color: AppColors.ocher,
+                                      fontWeight: FontWeight.w600,
+                                      fontSize: 10,
+                                    ),
+                                  ),
+                                ),
+                              ],
                               const SizedBox(width: 8),
                               Text('${round.matches.length} matches'),
                             ],
@@ -455,11 +505,13 @@ class _FixtureConfigPageState extends State<FixtureConfigPage> {
 class RoundConfig {
   final int roundNumber;
   final String format;
+  final String? subformat;
   final List<MatchPairing> matches;
 
   RoundConfig({
     required this.roundNumber,
     required this.format,
+    this.subformat,
     required this.matches,
   });
 }

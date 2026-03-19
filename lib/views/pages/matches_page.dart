@@ -121,6 +121,9 @@ class _MatchesPageState extends State<MatchesPage> {
                   final format = roundMatches.isNotEmpty
                       ? roundMatches.first.format
                       : '';
+                  final subformat = roundMatches.isNotEmpty
+                      ? roundMatches.first.subformat
+                      : null;
                   // Expand rounds with incomplete matches by default
                   final hasIncomplete = roundMatches.any((m) => !m.completed);
 
@@ -174,6 +177,31 @@ class _MatchesPageState extends State<MatchesPage> {
                                   ),
                                 ),
                               ),
+                              if (subformat != null) ...[
+                                const SizedBox(width: 6),
+                                Container(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 6,
+                                    vertical: 3,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: AppColors.ocher.withOpacity(0.2),
+                                    border: Border.all(
+                                      color: AppColors.ocher,
+                                      width: 1,
+                                    ),
+                                    borderRadius: BorderRadius.circular(3),
+                                  ),
+                                  child: Text(
+                                    subformat,
+                                    style: const TextStyle(
+                                      color: AppColors.ocher,
+                                      fontWeight: FontWeight.w600,
+                                      fontSize: 10,
+                                    ),
+                                  ),
+                                ),
+                              ],
                             ],
                           ),
                           subtitle: Padding(
