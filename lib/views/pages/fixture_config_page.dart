@@ -109,6 +109,8 @@ class _FixtureConfigPageState extends State<FixtureConfigPage> {
     List<String> bfSubformats = ['BFRL', 'BFVCR'];
     int pbSubformatIndex = Random().nextInt(2); // Randomly start with 0 or 1
     int bfSubformatIndex = Random().nextInt(2); // Randomly start with 0 or 1
+    // Randomly choose starting format when in 'both' mode
+    final randomStartWithPB = Random().nextBool();
 
     for (int roundIndex = 0; roundIndex < numberOfRounds; roundIndex++) {
       final cycleRound = roundIndex % roundsPerCycle;
@@ -135,6 +137,8 @@ class _FixtureConfigPageState extends State<FixtureConfigPage> {
           subformat = bfSubformats[bfSubformatIndex];
           bfSubformatIndex = (bfSubformatIndex + 1) % bfSubformats.length;
         }
+        // Alternate starting from random format: either PB first or BF first
+        format = ((roundIndex % 2 == 0) == randomStartWithPB) ? 'PB' : 'BF';
       }
 
       final matches = <MatchPairing>[];
