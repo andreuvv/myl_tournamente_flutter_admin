@@ -60,6 +60,8 @@ class TournamentRaceService {
     String playerName,
     String? racePb,
     String? raceBf,
+    String? raceLibre,
+    String? raceEditionVcr,
     String? notes,
   ) async {
     try {
@@ -72,6 +74,8 @@ class TournamentRaceService {
           'player_name': playerName,
           'race_pb': racePb,
           'race_bf': raceBf,
+          'race_libre': raceLibre,
+          'race_edition_vcr': raceEditionVcr,
           'notes': notes,
         }),
       );

@@ -25,7 +25,7 @@ class _TournamentPlayerRacesPageState extends State<TournamentPlayerRacesPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Carrera del Torneo'), elevation: 0),
+      appBar: AppBar(title: const Text('Razas por Torneo'), elevation: 0),
       body: Consumer<TournamentRaceController>(
         builder: (context, controller, child) {
           // Show tournament list if no tournament selected
@@ -158,12 +158,15 @@ class _TournamentPlayerRacesPageState extends State<TournamentPlayerRacesPage> {
       builder: (context) => RaceSelectionModal(
         player: player,
         initialRaceData: raceData,
-        onSave: (racePb, raceBf, notes) async {
+        tournamentFormat: controller.selectedTournament?.format,
+        onSave: (racePb, raceBf, raceLibre, raceEditionVcr, notes) async {
           final success = await controller.savePlayerRace(
             player.id,
             player.name,
             racePb,
             raceBf,
+            raceLibre,
+            raceEditionVcr,
             notes,
           );
 
@@ -220,13 +223,40 @@ class PlayerRaceListTile extends StatelessWidget {
               backgroundColor: AppColors.sageGreen,
               labelStyle: const TextStyle(fontSize: 11),
             ),
+          const SizedBox(width: 4),
+          if (raceData.raceLibre != null)
+            Chip(
+              label: Text(
+                'Libre: ${raceData.raceLibre}',
+                style: const TextStyle(color: AppColors.coalGrey),
+              ),
+              backgroundColor: Colors.orange,
+              labelStyle: const TextStyle(fontSize: 11),
+            ),
+          const SizedBox(width: 4),
+          if (raceData.raceEditionVcr != null)
+            Chip(
+              label: Text(
+                'VCR: ${raceData.raceEditionVcr}',
+                style: const TextStyle(color: AppColors.coalGrey),
+              ),
+              backgroundColor: Colors.purple,
+              labelStyle: const TextStyle(fontSize: 11),
+            ),
         ],
       ),
       trailing: Icon(
-        raceData.racePb != null || raceData.raceBf != null
+        raceData.racePb != null ||
+                raceData.raceBf != null ||
+                raceData.raceLibre != null ||
+                raceData.raceEditionVcr != null
             ? Icons.check_circle
             : Icons.edit,
-        color: raceData.racePb != null || raceData.raceBf != null
+        color:
+            raceData.racePb != null ||
+                raceData.raceBf != null ||
+                raceData.raceLibre != null ||
+                raceData.raceEditionVcr != null
             ? Colors.green
             : Colors.grey,
       ),
@@ -238,12 +268,14 @@ class PlayerRaceListTile extends StatelessWidget {
 class RaceSelectionModal extends StatefulWidget {
   final TournamentPlayer player;
   final PlayerRace initialRaceData;
-  final Function(String?, String?, String?) onSave;
+  final String? tournamentFormat; // 'PB', 'BF', or null (both)
+  final Function(String?, String?, String?, String?, String?) onSave;
 
   const RaceSelectionModal({
     Key? key,
     required this.player,
     required this.initialRaceData,
+    required this.tournamentFormat,
     required this.onSave,
   }) : super(key: key);
 
@@ -254,6 +286,8 @@ class RaceSelectionModal extends StatefulWidget {
 class _RaceSelectionModalState extends State<RaceSelectionModal> {
   late String? selectedRacePb;
   late String? selectedRaceBf;
+  late String? selectedRaceLibre;
+  late String? selectedRaceEditionVcr;
   late TextEditingController notesController;
   late TournamentRaceController controller;
   bool isSaving = false;
@@ -288,11 +322,32 @@ class _RaceSelectionModalState extends State<RaceSelectionModal> {
     'Tótem',
   ];
 
+  // Helper method to determine if we should show PB questions
+  bool get shouldShowPB => widget.tournamentFormat == null;
+
+  // Helper method to determine if we should show BF questions
+  bool get shouldShowBF => widget.tournamentFormat == null;
+
+  // Helper method to determine if we should show Libre/Edition/VCR (when tournament has specific format)
+  bool get shouldShowFormatSpecific => widget.tournamentFormat != null;
+
+  // Helper method to get race options for the specific format
+  List<String> get formatSpecificRaceOptions {
+    if (widget.tournamentFormat == 'PB') {
+      return pbRaceOptions;
+    } else if (widget.tournamentFormat == 'BF') {
+      return bfRaceOptions;
+    }
+    return pbRaceOptions; // default to PB if null (shouldn't happen)
+  }
+
   @override
   void initState() {
     super.initState();
     selectedRacePb = widget.initialRaceData.racePb;
     selectedRaceBf = widget.initialRaceData.raceBf;
+    selectedRaceLibre = widget.initialRaceData.raceLibre;
+    selectedRaceEditionVcr = widget.initialRaceData.raceEditionVcr;
     notesController = TextEditingController(
       text: widget.initialRaceData.notes ?? '',
     );
@@ -316,142 +371,223 @@ class _RaceSelectionModalState extends State<RaceSelectionModal> {
       expand: false,
       initialChildSize: 0.6,
       maxChildSize: 0.9,
-      builder: (context, scrollController) => SingleChildScrollView(
-        controller: scrollController,
-        child: Padding(
-          padding: EdgeInsets.only(
-            left: 16,
-            right: 16,
-            top: 16,
-            bottom: MediaQuery.of(context).viewInsets.bottom + 16,
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              // Player info
-              Text(
-                widget.player.name,
-                style: const TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              const SizedBox(height: 24),
-
-              // PB Race selection
-              Text(
-                '¿Qué raza jugó en PB?',
-                style: Theme.of(context).textTheme.titleMedium,
-              ),
-              const SizedBox(height: 8),
-              DropdownButton<String?>(
-                isExpanded: true,
-                value: selectedRacePb,
-                hint: const Text('Select race'),
-                items: [
-                  const DropdownMenuItem<String?>(
-                    value: null,
-                    child: Text('No data'),
-                  ),
-                  ...pbRaceOptions.map(
-                    (race) => DropdownMenuItem<String?>(
-                      value: race,
-                      child: Text(race),
-                    ),
-                  ),
-                ],
-                onChanged: (value) {
-                  setState(() {
-                    selectedRacePb = value;
-                  });
-                },
-              ),
-              const SizedBox(height: 20),
-
-              // BF Race selection
-              Text(
-                '¿Qué raza jugó en BF?',
-                style: Theme.of(context).textTheme.titleMedium,
-              ),
-              const SizedBox(height: 8),
-              DropdownButton<String?>(
-                isExpanded: true,
-                value: selectedRaceBf,
-                hint: const Text('Select race'),
-                items: [
-                  const DropdownMenuItem<String?>(
-                    value: null,
-                    child: Text('No data'),
-                  ),
-                  ...bfRaceOptions.map(
-                    (race) => DropdownMenuItem<String?>(
-                      value: race,
-                      child: Text(race),
-                    ),
-                  ),
-                ],
-                onChanged: (value) {
-                  setState(() {
-                    selectedRaceBf = value;
-                  });
-                },
-              ),
-              const SizedBox(height: 20),
-
-              // Notes field
-              Text(
-                'Notas (opcional)',
-                style: Theme.of(context).textTheme.titleMedium,
-              ),
-              const SizedBox(height: 8),
-              TextField(
-                controller: notesController,
-                maxLines: 3,
-                decoration: InputDecoration(
-                  hintText: 'Agregar notas aquí...',
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8),
+      builder: (context, scrollController) => SafeArea(
+        child: SingleChildScrollView(
+          controller: scrollController,
+          child: Padding(
+            padding: EdgeInsets.only(
+              left: 16,
+              right: 16,
+              top: 16,
+              bottom: MediaQuery.of(context).viewInsets.bottom + 32,
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                // Player info
+                Text(
+                  widget.player.name,
+                  style: const TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
                   ),
                 ),
-              ),
-              const SizedBox(height: 24),
+                const SizedBox(height: 24),
 
-              // Save button
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  onPressed: isSaving
-                      ? null
-                      : () async {
+                // Show PB and BF when format is null (both formats)
+                if (shouldShowPB)
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        '¿Qué raza jugó en PB?',
+                        style: Theme.of(context).textTheme.titleMedium,
+                      ),
+                      const SizedBox(height: 8),
+                      DropdownButton<String?>(
+                        isExpanded: true,
+                        value: selectedRacePb,
+                        hint: const Text('Select race'),
+                        items: [
+                          const DropdownMenuItem<String?>(
+                            value: null,
+                            child: Text('No data'),
+                          ),
+                          ...pbRaceOptions.map(
+                            (race) => DropdownMenuItem<String?>(
+                              value: race,
+                              child: Text(race),
+                            ),
+                          ),
+                        ],
+                        onChanged: (value) {
                           setState(() {
-                            isSaving = true;
+                            selectedRacePb = value;
                           });
-
-                          await widget.onSave(
-                            selectedRacePb,
-                            selectedRaceBf,
-                            notesController.text.isEmpty
-                                ? null
-                                : notesController.text,
-                          );
-
-                          if (mounted) {
-                            setState(() {
-                              isSaving = false;
-                            });
-                          }
                         },
-                  child: isSaving
-                      ? const SizedBox(
-                          height: 20,
-                          width: 20,
-                          child: CircularProgressIndicator(strokeWidth: 2),
-                        )
-                      : const Text('Guardar'),
+                      ),
+                      const SizedBox(height: 20),
+                    ],
+                  ),
+
+                if (shouldShowBF)
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        '¿Qué raza jugó en BF?',
+                        style: Theme.of(context).textTheme.titleMedium,
+                      ),
+                      const SizedBox(height: 8),
+                      DropdownButton<String?>(
+                        isExpanded: true,
+                        value: selectedRaceBf,
+                        hint: const Text('Select race'),
+                        items: [
+                          const DropdownMenuItem<String?>(
+                            value: null,
+                            child: Text('No data'),
+                          ),
+                          ...bfRaceOptions.map(
+                            (race) => DropdownMenuItem<String?>(
+                              value: race,
+                              child: Text(race),
+                            ),
+                          ),
+                        ],
+                        onChanged: (value) {
+                          setState(() {
+                            selectedRaceBf = value;
+                          });
+                        },
+                      ),
+                      const SizedBox(height: 20),
+                    ],
+                  ),
+
+                // Show Libre and Edition/VCR when format is PB or BF
+                if (shouldShowFormatSpecific)
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        '¿Qué raza jugó en Libre?',
+                        style: Theme.of(context).textTheme.titleMedium,
+                      ),
+                      const SizedBox(height: 8),
+                      DropdownButton<String?>(
+                        isExpanded: true,
+                        value: selectedRaceLibre,
+                        hint: const Text('Select race'),
+                        items: [
+                          const DropdownMenuItem<String?>(
+                            value: null,
+                            child: Text('No data'),
+                          ),
+                          ...formatSpecificRaceOptions.map(
+                            (race) => DropdownMenuItem<String?>(
+                              value: race,
+                              child: Text(race),
+                            ),
+                          ),
+                        ],
+                        onChanged: (value) {
+                          setState(() {
+                            selectedRaceLibre = value;
+                          });
+                        },
+                      ),
+                      const SizedBox(height: 20),
+
+                      // Show Edition label for PB, VCR label for BF
+                      Text(
+                        widget.tournamentFormat == 'PB' ? 'Edición' : 'VCR',
+                        style: Theme.of(context).textTheme.titleMedium,
+                      ),
+                      const SizedBox(height: 8),
+                      DropdownButton<String?>(
+                        isExpanded: true,
+                        value: selectedRaceEditionVcr,
+                        hint: const Text('Select race'),
+                        items: [
+                          const DropdownMenuItem<String?>(
+                            value: null,
+                            child: Text('No data'),
+                          ),
+                          ...formatSpecificRaceOptions.map(
+                            (race) => DropdownMenuItem<String?>(
+                              value: race,
+                              child: Text(race),
+                            ),
+                          ),
+                        ],
+                        onChanged: (value) {
+                          setState(() {
+                            selectedRaceEditionVcr = value;
+                          });
+                        },
+                      ),
+                      const SizedBox(height: 20),
+                    ],
+                  ),
+
+                // Notes field
+                Text(
+                  'Notas (opcional)',
+                  style: Theme.of(context).textTheme.titleMedium,
                 ),
-              ),
-            ],
+                const SizedBox(height: 8),
+                TextField(
+                  controller: notesController,
+                  maxLines: 3,
+                  decoration: InputDecoration(
+                    hintText: 'Agregar notas aquí...',
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 24),
+
+                // Save button
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    onPressed: isSaving
+                        ? null
+                        : () async {
+                            setState(() {
+                              isSaving = true;
+                            });
+
+                            await widget.onSave(
+                              selectedRacePb,
+                              selectedRaceBf,
+                              selectedRaceLibre,
+                              selectedRaceEditionVcr,
+                              notesController.text.isEmpty
+                                  ? null
+                                  : notesController.text,
+                            );
+
+                            if (mounted) {
+                              setState(() {
+                                isSaving = false;
+                              });
+                            }
+                          },
+                    child: isSaving
+                        ? const SizedBox(
+                            height: 20,
+                            width: 20,
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          )
+                        : const Text('Guardar'),
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),

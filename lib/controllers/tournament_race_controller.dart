@@ -91,6 +91,8 @@ class TournamentRaceController extends ChangeNotifier {
       playerName: player.name,
       racePb: null,
       raceBf: null,
+      raceLibre: null,
+      raceEditionVcr: null,
       notes: null,
     );
   }
@@ -100,12 +102,16 @@ class TournamentRaceController extends ChangeNotifier {
     int playerId,
     String? racePb,
     String? raceBf,
+    String? raceLibre,
+    String? raceEditionVcr,
     String? notes,
   ) {
     if (playerRaces.containsKey(playerId)) {
       playerRaces[playerId] = playerRaces[playerId]!.copyWith(
         racePb: racePb,
         raceBf: raceBf,
+        raceLibre: raceLibre,
+        raceEditionVcr: raceEditionVcr,
         notes: notes,
       );
     } else {
@@ -118,6 +124,8 @@ class TournamentRaceController extends ChangeNotifier {
           playerName: '',
           racePb: racePb,
           raceBf: raceBf,
+          raceLibre: raceLibre,
+          raceEditionVcr: raceEditionVcr,
           notes: notes,
         );
       }
@@ -131,6 +139,8 @@ class TournamentRaceController extends ChangeNotifier {
     String playerName,
     String? racePb,
     String? raceBf,
+    String? raceLibre,
+    String? raceEditionVcr,
     String? notes,
   ) async {
     if (selectedTournament == null) return false;
@@ -146,11 +156,20 @@ class TournamentRaceController extends ChangeNotifier {
         playerName,
         racePb,
         raceBf,
+        raceLibre,
+        raceEditionVcr,
         notes,
       );
 
       // Update local cache
-      updatePlayerRaceLocal(playerId, racePb, raceBf, notes);
+      updatePlayerRaceLocal(
+        playerId,
+        racePb,
+        raceBf,
+        raceLibre,
+        raceEditionVcr,
+        notes,
+      );
 
       isSaving = false;
       notifyListeners();

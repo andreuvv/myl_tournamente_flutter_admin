@@ -5,6 +5,7 @@ class ArchivedTournament {
   final int year;
   final String? startDate;
   final String? endDate;
+  final String? format;
 
   ArchivedTournament({
     required this.id,
@@ -13,6 +14,7 @@ class ArchivedTournament {
     required this.year,
     this.startDate,
     this.endDate,
+    this.format,
   });
 
   factory ArchivedTournament.fromJson(Map<String, dynamic> json) {
@@ -23,6 +25,7 @@ class ArchivedTournament {
       year: json['year'] as int,
       startDate: json['start_date'] as String?,
       endDate: json['end_date'] as String?,
+      format: json['format'] as String?,
     );
   }
 
@@ -34,6 +37,7 @@ class ArchivedTournament {
       'year': year,
       'start_date': startDate,
       'end_date': endDate,
+      'format': format,
     };
   }
 
@@ -91,6 +95,8 @@ class PlayerRace {
   final String playerName;
   final String? racePb;
   final String? raceBf;
+  final String? raceLibre;
+  final String? raceEditionVcr;
   final String? notes;
   final String? createdAt;
   final String? updatedAt;
@@ -102,6 +108,8 @@ class PlayerRace {
     required this.playerName,
     this.racePb,
     this.raceBf,
+    this.raceLibre,
+    this.raceEditionVcr,
     this.notes,
     this.createdAt,
     this.updatedAt,
@@ -115,6 +123,8 @@ class PlayerRace {
       playerName: json['player_name'] as String? ?? '',
       racePb: json['race_pb'] as String?,
       raceBf: json['race_bf'] as String?,
+      raceLibre: json['race_libre'] as String?,
+      raceEditionVcr: json['race_edition_vcr'] as String?,
       notes: json['notes'] as String?,
       createdAt: json['created_at'] as String?,
       updatedAt: json['updated_at'] as String?,
@@ -129,13 +139,21 @@ class PlayerRace {
       'player_name': playerName,
       'race_pb': racePb,
       'race_bf': raceBf,
+      'race_libre': raceLibre,
+      'race_edition_vcr': raceEditionVcr,
       'notes': notes,
       'created_at': createdAt,
       'updated_at': updatedAt,
     };
   }
 
-  PlayerRace copyWith({String? racePb, String? raceBf, String? notes}) {
+  PlayerRace copyWith({
+    String? racePb,
+    String? raceBf,
+    String? raceLibre,
+    String? raceEditionVcr,
+    String? notes,
+  }) {
     return PlayerRace(
       id: id,
       tournamentId: tournamentId,
@@ -143,6 +161,8 @@ class PlayerRace {
       playerName: playerName,
       racePb: racePb ?? this.racePb,
       raceBf: raceBf ?? this.raceBf,
+      raceLibre: raceLibre ?? this.raceLibre,
+      raceEditionVcr: raceEditionVcr ?? this.raceEditionVcr,
       notes: notes ?? this.notes,
       createdAt: createdAt,
       updatedAt: updatedAt,
