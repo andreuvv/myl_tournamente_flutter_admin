@@ -192,11 +192,11 @@ class PlayerRaceListTile extends StatelessWidget {
   final VoidCallback onTap;
 
   const PlayerRaceListTile({
-    Key? key,
+    super.key,
     required this.player,
     required this.raceData,
     required this.onTap,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -272,12 +272,12 @@ class RaceSelectionModal extends StatefulWidget {
   final Function(String?, String?, String?, String?, String?) onSave;
 
   const RaceSelectionModal({
-    Key? key,
+    super.key,
     required this.player,
     required this.initialRaceData,
     required this.tournamentFormat,
     required this.onSave,
-  }) : super(key: key);
+  });
 
   @override
   State<RaceSelectionModal> createState() => _RaceSelectionModalState();

@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../config/app_theme.dart';
 import '../../controllers/online_tournament_controller.dart';
-import '../../models/player.dart';
 import 'online_tournament_matches_page.dart';
 
 class OnlineTournamentConfigPage extends StatefulWidget {
@@ -23,7 +22,7 @@ class _OnlineTournamentConfigPageState extends State<OnlineTournamentConfigPage>
 
   late TabController _tabController;
   String _selectedFormat = 'PB';
-  Set<int> _selectedPlayerIds = {};
+  final Set<int> _selectedPlayerIds = {};
   bool _isCreating = false;
 
   final List<String> _months = [
@@ -271,7 +270,7 @@ class _OnlineTournamentConfigPageState extends State<OnlineTournamentConfigPage>
               children: [
                 Expanded(
                   child: DropdownButtonFormField<String>(
-                    value: _monthController.text,
+                    initialValue: _monthController.text,
                     isExpanded: true,
                     decoration: InputDecoration(
                       labelText: 'Month',
@@ -297,7 +296,7 @@ class _OnlineTournamentConfigPageState extends State<OnlineTournamentConfigPage>
                 const SizedBox(width: 16),
                 Expanded(
                   child: DropdownButtonFormField<String>(
-                    value: _yearController.text,
+                    initialValue: _yearController.text,
                     isExpanded: true,
                     decoration: InputDecoration(
                       labelText: 'Year',

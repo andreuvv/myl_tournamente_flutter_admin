@@ -121,7 +121,7 @@ class _SettingsPageState extends State<SettingsPage> {
                   ),
                   const SizedBox(height: 16),
                   DropdownButtonFormField<String>(
-                    value: month,
+                    initialValue: month,
                     decoration: const InputDecoration(labelText: 'Month'),
                     items: months
                         .map((m) => DropdownMenuItem(value: m, child: Text(m)))

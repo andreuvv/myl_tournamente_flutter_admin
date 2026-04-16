@@ -104,11 +104,9 @@ class _StandingsPageState extends State<StandingsPage> {
                 child: Padding(
                   padding: const EdgeInsets.all(16),
                   child: DataTable(
-                    headingRowColor: MaterialStateProperty.all(
-                      AppColors.surface,
-                    ),
-                    dataRowColor: MaterialStateProperty.resolveWith<Color>(
-                      (states) => states.contains(MaterialState.selected)
+                    headingRowColor: WidgetStateProperty.all(AppColors.surface),
+                    dataRowColor: WidgetStateProperty.resolveWith<Color>(
+                      (states) => states.contains(WidgetState.selected)
                           ? AppColors.sageGreen.withOpacity(0.1)
                           : Colors.transparent,
                     ),

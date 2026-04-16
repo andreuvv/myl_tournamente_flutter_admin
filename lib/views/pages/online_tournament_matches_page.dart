@@ -19,7 +19,6 @@ class _OnlineTournamentMatchesPageState
     extends State<OnlineTournamentMatchesPage>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
-  bool _autoRefresh = true;
   String? _selectedPlayerFilter;
 
   @override
@@ -167,14 +166,12 @@ class _OnlineTournamentMatchesPageState
                   value: null,
                   child: const Text('All Players'),
                 ),
-                ...players
-                    .map(
-                      (player) => DropdownMenuItem<String?>(
-                        value: player,
-                        child: Text(player),
-                      ),
-                    )
-                    .toList(),
+                ...players.map(
+                  (player) => DropdownMenuItem<String?>(
+                    value: player,
+                    child: Text(player),
+                  ),
+                ),
               ],
               onChanged: (value) {
                 setState(() => _selectedPlayerFilter = value);
