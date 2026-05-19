@@ -43,7 +43,7 @@ class _OnlineTournamentStandingsPageState
                 Icon(
                   Icons.leaderboard,
                   size: 64,
-                  color: Colors.grey.withOpacity(0.5),
+                  color: Colors.grey.withValues(alpha: 0.5),
                 ),
                 const SizedBox(height: 16),
                 Text(
@@ -187,7 +187,7 @@ class _OnlineTournamentStandingsPageState
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.2),
+        color: color.withValues(alpha: 0.2),
         borderRadius: BorderRadius.circular(4),
       ),
       child: Text(

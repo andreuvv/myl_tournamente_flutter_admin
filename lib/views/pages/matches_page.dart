@@ -185,7 +185,9 @@ class _MatchesPageState extends State<MatchesPage> {
                                     vertical: 3,
                                   ),
                                   decoration: BoxDecoration(
-                                    color: AppColors.ocher.withOpacity(0.2),
+                                    color: AppColors.ocher.withValues(
+                                      alpha: 0.2,
+                                    ),
                                     border: Border.all(
                                       color: AppColors.ocher,
                                       width: 1,

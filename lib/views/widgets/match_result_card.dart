@@ -15,7 +15,7 @@ class MatchResultCard extends StatelessWidget {
     final isBye = match.isByeMatch;
 
     return Card(
-      color: isBye ? AppColors.surface.withOpacity(0.7) : null,
+      color: isBye ? AppColors.surface.withValues(alpha: 0.7) : null,
       child: InkWell(
         onTap: () => _showEditDialog(context),
         borderRadius: BorderRadius.circular(8),
@@ -79,7 +79,7 @@ class MatchResultCard extends StatelessWidget {
                     vertical: 4,
                   ),
                   decoration: BoxDecoration(
-                    color: AppColors.ocher.withOpacity(0.2),
+                    color: AppColors.ocher.withValues(alpha: 0.2),
                     borderRadius: BorderRadius.circular(4),
                   ),
                   child: const Text(
@@ -100,7 +100,7 @@ class MatchResultCard extends StatelessWidget {
                     vertical: 4,
                   ),
                   decoration: BoxDecoration(
-                    color: AppColors.sageGreen.withOpacity(0.2),
+                    color: AppColors.sageGreen.withValues(alpha: 0.2),
                     borderRadius: BorderRadius.circular(4),
                   ),
                   child: const Text(

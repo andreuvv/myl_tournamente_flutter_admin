@@ -132,8 +132,10 @@ class _FixturesPageState extends State<FixturesPage> {
                               ),
                               decoration: BoxDecoration(
                                 color: round.format == 'PB'
-                                    ? AppColors.petrolBlue.withOpacity(0.2)
-                                    : AppColors.ocher.withOpacity(0.2),
+                                    ? AppColors.petrolBlue.withValues(
+                                        alpha: 0.2,
+                                      )
+                                    : AppColors.ocher.withValues(alpha: 0.2),
                                 borderRadius: BorderRadius.circular(4),
                               ),
                               child: Text(
@@ -156,7 +158,9 @@ class _FixturesPageState extends State<FixturesPage> {
                                     vertical: 2,
                                   ),
                                   decoration: BoxDecoration(
-                                    color: AppColors.sageGreen.withOpacity(0.2),
+                                    color: AppColors.sageGreen.withValues(
+                                      alpha: 0.2,
+                                    ),
                                     borderRadius: BorderRadius.circular(3),
                                   ),
                                   child: Text(

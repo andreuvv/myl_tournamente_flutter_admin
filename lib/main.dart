@@ -82,7 +82,7 @@ class _HomePageState extends State<HomePage> {
           });
         },
         backgroundColor: AppColors.surface,
-        indicatorColor: AppColors.sageGreen.withOpacity(0.3),
+        indicatorColor: AppColors.sageGreen.withValues(alpha: 0.3),
         destinations: const [
           NavigationDestination(
             icon: Icon(Icons.home_outlined),

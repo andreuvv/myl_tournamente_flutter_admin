@@ -107,7 +107,7 @@ class _StandingsPageState extends State<StandingsPage> {
                     headingRowColor: WidgetStateProperty.all(AppColors.surface),
                     dataRowColor: WidgetStateProperty.resolveWith<Color>(
                       (states) => states.contains(WidgetState.selected)
-                          ? AppColors.sageGreen.withOpacity(0.1)
+                          ? AppColors.sageGreen.withValues(alpha: 0.1)
                           : Colors.transparent,
                     ),
                     columns: const [
