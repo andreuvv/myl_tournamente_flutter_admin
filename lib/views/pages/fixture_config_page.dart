@@ -4,6 +4,7 @@ import '../../config/app_theme.dart';
 import '../../services/player_service.dart';
 import '../../services/fixture_service.dart';
 import '../../models/player.dart';
+import 'extra_round_config_page.dart';
 
 class FixtureConfigPage extends StatefulWidget {
   const FixtureConfigPage({super.key});
@@ -24,6 +25,7 @@ class _FixtureConfigPageState extends State<FixtureConfigPage> {
 
   String _formatMode = 'both'; // 'pb_only', 'bf_only', 'both'
   int _numberOfRounds = 5;
+  bool _addExtraRound = false;
 
   @override
   void initState() {
@@ -72,6 +74,17 @@ class _FixtureConfigPageState extends State<FixtureConfigPage> {
       _confirmedPlayers,
       _numberOfRounds,
     );
+
+    if (_addExtraRound) {
+      final lastFormat = rounds.isNotEmpty ? rounds.last.format : 'PB';
+      rounds.add(
+        RoundConfig(
+          roundNumber: rounds.length + 1,
+          format: lastFormat,
+          matches: [],
+        ),
+      );
+    }
 
     setState(() {
       _rounds = rounds;
@@ -226,7 +239,20 @@ class _FixtureConfigPageState extends State<FixtureConfigPage> {
             backgroundColor: AppColors.sageGreen,
           ),
         );
-        Navigator.pop(context);
+        if (_addExtraRound) {
+          final extraRoundNumber = _rounds.length;
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(
+              builder: (_) => ExtraRoundConfigPage(
+                roundNumber: extraRoundNumber,
+                players: _confirmedPlayers,
+              ),
+            ),
+          );
+        } else {
+          Navigator.pop(context);
+        }
       }
     } catch (e) {
       if (mounted) {
@@ -309,7 +335,7 @@ class _FixtureConfigPageState extends State<FixtureConfigPage> {
               color: AppColors.surface,
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.1),
+                  color: Colors.black.withValues(alpha: 0.1),
                   blurRadius: 4,
                   offset: const Offset(0, 2),
                 ),
@@ -372,6 +398,17 @@ class _FixtureConfigPageState extends State<FixtureConfigPage> {
                   },
                 ),
                 const SizedBox(height: 16),
+                SwitchListTile(
+                  contentPadding: EdgeInsets.zero,
+                  title: const Text('Agregar ronda extra'),
+                  subtitle: const Text(
+                    'Se posteará vacía y podrás asignar los jugadores luego',
+                    style: TextStyle(fontSize: 12),
+                  ),
+                  value: _addExtraRound,
+                  onChanged: (val) => setState(() => _addExtraRound = val),
+                ),
+                const SizedBox(height: 8),
                 SizedBox(
                   width: double.infinity,
                   child: ElevatedButton.icon(
@@ -450,7 +487,9 @@ class _FixtureConfigPageState extends State<FixtureConfigPage> {
                                     vertical: 3,
                                   ),
                                   decoration: BoxDecoration(
-                                    color: AppColors.ocher.withOpacity(0.2),
+                                    color: AppColors.ocher.withValues(
+                                      alpha: 0.2,
+                                    ),
                                     border: Border.all(
                                       color: AppColors.ocher,
                                       width: 1,

@@ -39,4 +39,25 @@ class FixtureService {
       throw Exception('Error creating fixture: $e');
     }
   }
+
+  Future<void> addMatchesToRound(
+    int roundNumber,
+    List<Map<String, String>> matches,
+  ) async {
+    try {
+      final response = await http.post(
+        Uri.parse('${ApiConfig.baseUrl}/rounds/$roundNumber/matches'),
+        headers: ApiConfig.headers,
+        body: json.encode({'matches': matches}),
+      );
+
+      if (response.statusCode != 201 && response.statusCode != 200) {
+        throw Exception(
+          'Failed to add matches: ${response.statusCode} - ${response.body}',
+        );
+      }
+    } catch (e) {
+      throw Exception('Error adding matches to round: $e');
+    }
+  }
 }
