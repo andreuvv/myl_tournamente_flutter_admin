@@ -3,6 +3,7 @@ class Match {
   final int roundNumber;
   final String format;
   final String? subformat;
+  final bool isExtraRound;
   final String player1Name;
   final String player2Name;
   final int? score1;
@@ -15,6 +16,7 @@ class Match {
     required this.roundNumber,
     required this.format,
     this.subformat,
+    this.isExtraRound = false,
     required this.player1Name,
     required this.player2Name,
     this.score1,
@@ -29,6 +31,7 @@ class Match {
       roundNumber: json['round_number'] as int,
       format: json['format'] as String,
       subformat: json['subformat'] as String?,
+      isExtraRound: json['is_extra_round'] as bool? ?? false,
       player1Name: json['player1_name'] as String,
       player2Name: json['player2_name'] as String,
       score1: json['score1'] as int?,
@@ -44,6 +47,7 @@ class Match {
       'round_number': roundNumber,
       'format': format,
       'subformat': subformat,
+      'is_extra_round': isExtraRound,
       'player1_name': player1Name,
       'player2_name': player2Name,
       'score1': score1,
@@ -72,6 +76,7 @@ class Match {
     int? roundNumber,
     String? format,
     String? subformat,
+    bool? isExtraRound,
     String? player1Name,
     String? player2Name,
     int? score1,
@@ -84,6 +89,7 @@ class Match {
       roundNumber: roundNumber ?? this.roundNumber,
       format: format ?? this.format,
       subformat: subformat ?? this.subformat,
+      isExtraRound: isExtraRound ?? this.isExtraRound,
       player1Name: player1Name ?? this.player1Name,
       player2Name: player2Name ?? this.player2Name,
       score1: score1 ?? this.score1,

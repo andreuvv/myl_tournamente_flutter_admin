@@ -4,7 +4,6 @@ import '../../config/app_theme.dart';
 import '../../services/player_service.dart';
 import '../../services/fixture_service.dart';
 import '../../models/player.dart';
-import 'extra_round_config_page.dart';
 
 class FixtureConfigPage extends StatefulWidget {
   const FixtureConfigPage({super.key});
@@ -81,6 +80,7 @@ class _FixtureConfigPageState extends State<FixtureConfigPage> {
         RoundConfig(
           roundNumber: rounds.length + 1,
           format: lastFormat,
+          isExtraRound: true,
           matches: [],
         ),
       );
@@ -216,6 +216,7 @@ class _FixtureConfigPageState extends State<FixtureConfigPage> {
               (r) => {
                 'round_number': r.roundNumber,
                 'format': r.format,
+                'is_extra_round': r.isExtraRound,
                 'matches': r.matches
                     .map(
                       (m) => {
@@ -234,25 +235,16 @@ class _FixtureConfigPageState extends State<FixtureConfigPage> {
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Fixture created successfully!'),
+          SnackBar(
+            content: Text(
+              _addExtraRound
+                  ? 'Fixture created. The extra round will be available in Fixtures to edit later.'
+                  : 'Fixture created successfully!',
+            ),
             backgroundColor: AppColors.sageGreen,
           ),
         );
-        if (_addExtraRound) {
-          final extraRoundNumber = _rounds.length;
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(
-              builder: (_) => ExtraRoundConfigPage(
-                roundNumber: extraRoundNumber,
-                players: _confirmedPlayers,
-              ),
-            ),
-          );
-        } else {
-          Navigator.pop(context);
-        }
+        Navigator.pop(context);
       }
     } catch (e) {
       if (mounted) {
@@ -549,12 +541,14 @@ class RoundConfig {
   final int roundNumber;
   final String format;
   final String? subformat;
+  final bool isExtraRound;
   final List<MatchPairing> matches;
 
   RoundConfig({
     required this.roundNumber,
     required this.format,
     this.subformat,
+    this.isExtraRound = false,
     required this.matches,
   });
 }

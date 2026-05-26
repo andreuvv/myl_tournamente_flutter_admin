@@ -4,12 +4,14 @@ class FixtureRound {
   final int number;
   final String format;
   final String? subformat;
+  final bool isExtraRound;
   final List<Match> matches;
 
   FixtureRound({
     required this.number,
     required this.format,
     this.subformat,
+    this.isExtraRound = false,
     required this.matches,
   });
 
@@ -18,6 +20,7 @@ class FixtureRound {
       number: json['number'] as int,
       format: json['format'] as String,
       subformat: json['subformat'] as String?,
+      isExtraRound: json['is_extra_round'] as bool? ?? false,
       matches: (json['matches'] as List<dynamic>)
           .map((m) => Match.fromJson(m as Map<String, dynamic>))
           .toList(),
@@ -29,6 +32,7 @@ class FixtureRound {
       'number': number,
       'format': format,
       'subformat': subformat,
+      'is_extra_round': isExtraRound,
       'matches': matches.map((m) => m.toJson()).toList(),
     };
   }

@@ -6,11 +6,13 @@ import '../../services/fixture_service.dart';
 class ExtraRoundConfigPage extends StatefulWidget {
   final int roundNumber;
   final List<Player> players;
+  final List<Map<String, String>> initialMatches;
 
   const ExtraRoundConfigPage({
     super.key,
     required this.roundNumber,
     required this.players,
+    this.initialMatches = const [],
   });
 
   @override
@@ -31,6 +33,31 @@ class _ExtraRoundConfigPageState extends State<ExtraRoundConfigPage> {
 
   List<Player> get _playablePlayers =>
       widget.players.where((p) => p.name != 'BYE').toList();
+
+  Player? _findPlayer(String? name) {
+    if (name == null) return null;
+    for (final player in _playablePlayers) {
+      if (player.name == name) return player;
+    }
+    return null;
+  }
+
+  @override
+  void initState() {
+    super.initState();
+
+    if (widget.initialMatches.isNotEmpty) {
+      final firstMatch = widget.initialMatches.first;
+      final secondMatch = widget.initialMatches.length > 1
+          ? widget.initialMatches[1]
+          : null;
+
+      _match1Player1 = _findPlayer(firstMatch['player1_name']);
+      _match1Player2 = _findPlayer(firstMatch['player2_name']);
+      _match2Player1 = _findPlayer(secondMatch?['player1_name']);
+      _match2Player2 = _findPlayer(secondMatch?['player2_name']);
+    }
+  }
 
   bool get _isValid {
     if (_match1Player1 == null ||
@@ -71,9 +98,7 @@ class _ExtraRoundConfigPageState extends State<ExtraRoundConfigPage> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(
-              'Ronda ${widget.roundNumber} configurada correctamente',
-            ),
+            content: Text('Ronda ${widget.roundNumber} guardada correctamente'),
             backgroundColor: AppColors.sageGreen,
           ),
         );
@@ -237,10 +262,13 @@ class _ExtraRoundConfigPageState extends State<ExtraRoundConfigPage> {
                 children: [
                   Icon(Icons.info_outline, color: AppColors.ocher, size: 20),
                   const SizedBox(width: 8),
-                  const Expanded(
+                  Expanded(
                     child: Text(
-                      'Asigna los 4 jugadores de la ronda extra. '
-                      'Los resultados contarán en el standings.',
+                      widget.initialMatches.isEmpty
+                          ? 'Asigna los 4 jugadores de la ronda extra. '
+                                'Los resultados contarán en el standings.'
+                          : 'Puedes ajustar los 4 jugadores de la ronda extra '
+                                'antes de reportar resultados.',
                       style: TextStyle(fontSize: 13),
                     ),
                   ),

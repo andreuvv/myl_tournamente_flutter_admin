@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../controllers/fixture_controller.dart';
+import '../../controllers/player_controller.dart';
 import '../../config/app_theme.dart';
+import '../../models/fixture.dart';
+import '../../models/player.dart';
+import 'extra_round_config_page.dart';
 
 class FixturesPage extends StatefulWidget {
   const FixturesPage({super.key});
@@ -16,7 +20,49 @@ class _FixturesPageState extends State<FixturesPage> {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       context.read<FixtureController>().loadFixture();
+      context.read<PlayerController>().loadPlayers();
     });
+  }
+
+  Future<void> _openExtraRoundEditor(
+    BuildContext context,
+    FixtureRound round,
+    List<Player> players,
+  ) async {
+    final confirmedPlayers = players.where((p) => p.confirmed).toList();
+    if (confirmedPlayers.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('No confirmed players available yet.'),
+          backgroundColor: AppColors.error,
+        ),
+      );
+      return;
+    }
+
+    final initialMatches = round.matches
+        .map(
+          (match) => {
+            'player1_name': match.player1Name,
+            'player2_name': match.player2Name,
+          },
+        )
+        .toList();
+
+    await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => ExtraRoundConfigPage(
+          roundNumber: round.number,
+          players: confirmedPlayers,
+          initialMatches: initialMatches,
+        ),
+      ),
+    );
+
+    if (context.mounted) {
+      context.read<FixtureController>().loadFixture();
+    }
   }
 
   @override
@@ -33,8 +79,8 @@ class _FixturesPageState extends State<FixturesPage> {
           ),
         ],
       ),
-      body: Consumer<FixtureController>(
-        builder: (context, controller, child) {
+      body: Consumer2<FixtureController, PlayerController>(
+        builder: (context, controller, playerController, child) {
           if (controller.isLoading) {
             return const Center(child: CircularProgressIndicator());
           }
@@ -177,29 +223,56 @@ class _FixturesPageState extends State<FixturesPage> {
                         ),
                       ],
                     ),
-                    children: round.matches.map((match) {
-                      return ListTile(
-                        leading: Icon(
-                          match.completed
-                              ? Icons.check_circle
-                              : Icons.radio_button_unchecked,
-                          color: match.completed
-                              ? AppColors.sageGreen
-                              : AppColors.textSecondary,
+                    children: [
+                      ...round.matches.map((match) {
+                        return ListTile(
+                          leading: Icon(
+                            match.completed
+                                ? Icons.check_circle
+                                : Icons.radio_button_unchecked,
+                            color: match.completed
+                                ? AppColors.sageGreen
+                                : AppColors.textSecondary,
+                          ),
+                          title: Text(
+                            '${match.player1Name} vs ${match.player2Name}',
+                          ),
+                          subtitle: match.completed
+                              ? Text(
+                                  'Score: ${match.score1} - ${match.score2}',
+                                  style: TextStyle(
+                                    color: AppColors.textSecondary,
+                                  ),
+                                )
+                              : const Text('Pending'),
+                        );
+                      }),
+                      if (round.isExtraRound)
+                        Padding(
+                          padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+                          child: SizedBox(
+                            width: double.infinity,
+                            child: ElevatedButton.icon(
+                              onPressed: playerController.isLoading
+                                  ? null
+                                  : () => _openExtraRoundEditor(
+                                      context,
+                                      round,
+                                      playerController.players,
+                                    ),
+                              icon: const Icon(Icons.edit),
+                              label: Text(
+                                round.matches.isEmpty
+                                    ? 'Configurar ronda extra'
+                                    : 'Editar ronda extra',
+                              ),
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: AppColors.petrolBlue,
+                              ),
+                            ),
+                          ),
                         ),
-                        title: Text(
-                          '${match.player1Name} vs ${match.player2Name}',
-                        ),
-                        subtitle: match.completed
-                            ? Text(
-                                'Score: ${match.score1} - ${match.score2}',
-                                style: TextStyle(
-                                  color: AppColors.textSecondary,
-                                ),
-                              )
-                            : const Text('Pending'),
-                      );
-                    }).toList(),
+                    ],
                   ),
                 );
               },
